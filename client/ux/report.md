@@ -14,3 +14,16 @@ This report details the ux choices and the reasons behind them based on the foll
 10. Help and documentation
 
 The following report will detail how each heuristic is satisfied with this design.
+
+
+# Appendix A
+The following is some feedback obtained from some UI design professionals about the initial designs.
+
+Below are some points from a user interface designer at Nokia.
+- Why is the username/password text so massive?
+- The text boxes should be wider with smaller text and maybe not as tall
+- What's the arrow beside math? It's not too clear.
+
+Below are some points from a freelance web designer.
+- Add back arrow of some kind
+- Add drag & drop
