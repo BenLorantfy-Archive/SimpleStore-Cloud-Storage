@@ -1,0 +1,23 @@
+tree-item .itemContainer{
+    margin-bottom: 5px;
+}
+
+
+tree-item .folder{
+    vertical-align: middle;
+    width:20px;
+}
+
+tree-item .arrow{
+    vertical-align: middle;
+    width:10px;
+    margin-right:5px;
+}
+
+tree-item .name{
+    vertical-align: middle;
+}
+
+tree-item{
+    cursor: pointer;
+}

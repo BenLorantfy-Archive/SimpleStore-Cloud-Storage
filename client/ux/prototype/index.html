@@ -6,17 +6,27 @@
       
     <link rel="stylesheet" type="text/css" href="css/theme.css" />
   </head>
-    <body>
-        <img id="logo" src="img/logo.png" />
-        <input type="text" placeholder="Username" />
-        <input type="password" placeholder="Password" />
-        <input type="button" value="Login" />
-        <div id="signUpMessage">Don't have an account? <span id="signUp">Sign Up</span></div>
+    <body ng-app="app" ng-controller="MainController">
+        <section id="loginScreen">
+            <img id="logo" src="img/logo.png" />
+            <input type="text" placeholder="Username" />
+            <input type="password" placeholder="Password" />
+            <input type="button" value="Login" id="login" />
+            <div id="signUpMessage">Don't have an account? <span id="signUp">Sign Up</span></div>        
+        </section>
+
+        <section id="filesScreen" style="display:none">
+            <div id="fileColumnHolder">
+                <div class="fileColumn"></div>
+            </div>
+            
+        </section>
     </body>
 
 
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
     <script src="js/lib/jquery.js"></script>    
+    <script src="js/lib/request.js"></script>
     <script src="js/lib/angular.js"></script>  
     <script src="js/app.js"></script>
     <script>if (window.module) module = window.module;</script>

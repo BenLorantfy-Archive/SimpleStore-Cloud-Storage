@@ -10,6 +10,19 @@ html,body{
     
     background-color:#F2F2F2;
     font-family: Helvetica, Arial, sans-serif;
+    overflow:hidden;
+}
+
+*{
+    box-sizing: border-box;
+}
+
+section{
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height: 100%;
 }
 
 #logo{
@@ -60,4 +73,22 @@ input[type="button"],button{
 
 #signUp{
     color:#2891FF;
+}
+
+#fileColumnHolder{
+    height: 100%;
+}
+
+.fileColumn{
+    width:250px;
+    border-right:1px solid #B4BBBF;
+    height: 100%;
+    padding:20px;
+    color:grey;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.hide{
+    display: none;
 }

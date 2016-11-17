@@ -1,3 +1,6 @@
+// Author: Ben Lorantfy
+// Desc: This file sets up the application window
+
 const electron = require('electron')
 // Module to control application life.
 const app = electron.app
@@ -22,7 +25,7 @@ function createWindow () {
     slashes: true
   }))
 
-  // Open the DevTools.
+  // Open the DevTools if openned in debug mode
   if(process.argv[2] == "debug"){
       mainWindow.webContents.openDevTools()
   }
