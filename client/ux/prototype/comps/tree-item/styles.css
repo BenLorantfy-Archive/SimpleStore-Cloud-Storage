@@ -1,11 +1,15 @@
 tree-item .itemContainer{
     position: relative;
     margin-bottom: 5px;
-    padding:2px;
     padding-left: 5px;
 }
 
-tree-item .itemContainer.selected::after{
+tree-item .itemNameContainer{
+    padding:2px;
+    position: relative;
+}
+
+tree-item[is-folder="true"] > .itemContainer > .itemNameContainer.selected::after{
     
     content:"";
     height:100%;
@@ -30,6 +34,11 @@ tree-item .arrow{
     vertical-align: middle;
     width:10px;
     margin-right:5px;
+    transition: all 0.2s;
+}
+
+tree-item.expanded > .itemContainer > .itemNameContainer > .arrow{
+    transform:rotate(90deg);
 }
 
 tree-item .name{
@@ -43,4 +52,16 @@ tree-item{
 tree-item .selected{
 /*    background-color:#CAD1D6;*/
     background-color:#D8E0E5;
+}
+
+tree-item .itemContainer .children{
+    padding-left:20px;
+    display: none;
+}
+
+tree-item .children:empty::after{
+    content: "Empty";
+    font-style: italic;
+    padding:10px;
+    padding-top:15px;
 }
