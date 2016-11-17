@@ -1,7 +1,25 @@
 tree-item .itemContainer{
+    position: relative;
     margin-bottom: 5px;
+    padding:2px;
+    padding-left: 5px;
 }
 
+tree-item .itemContainer.selected::after{
+    
+    content:"";
+    height:100%;
+    width:20px;
+/*    background-color:red;*/
+    display: block;
+    position: absolute;
+    top:0;
+    right:-17px;
+    background-image:url(img/columnArrow.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
 
 tree-item .folder{
     vertical-align: middle;
@@ -20,4 +38,9 @@ tree-item .name{
 
 tree-item{
     cursor: pointer;
+}
+
+tree-item .selected{
+/*    background-color:#CAD1D6;*/
+    background-color:#D8E0E5;
 }

@@ -76,13 +76,16 @@ app.controller('MainController', function($scope, $compile) {
     }
     
     (function filesEvents(){
-        $("#filesScreen").on("click","tree-item .name",function(){
-            var name = $(this).text();
+        $("#filesScreen").on("click","tree-item .itemContainer",function(e){
+            if($(e.target).closest(".arrow").length > 0) return;
+            
+            var name = $(this).find(".name").text();
             var parent = $(this).closest(".fileColumn");
             var colIndex = parent.index();
+            var currCol = $(".fileColumn").eq(colIndex);
             
             // [ Create the new column and delete any extra ones ]
-            $(".fileColumn").eq(colIndex).nextAll().remove();
+            currCol.nextAll().remove();
             
             var newCol = $("<div class='fileColumn'></div>");
             $("#fileColumnHolder").append(newCol);
@@ -118,6 +121,9 @@ app.controller('MainController', function($scope, $compile) {
                 $compile(el)($scope);
             })            
             
+            // [ Highlight the selected folder ]
+            currCol.find(".itemContainer").removeClass("selected");
+            $(this).closest(".itemContainer").addClass("selected");
         })
     })();
 
