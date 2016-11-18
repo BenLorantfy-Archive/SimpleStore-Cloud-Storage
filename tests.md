@@ -1,5 +1,5 @@
 # Testing
-This report documents the manual and unit testing results. Because there are not very many tests, they should be manually double checked against unit tests. This document does not include the most up to date unit testing results. Its purpose is to serve as a formal source of test results and completion dates. These tests are copied from the `Assignment-5-Test-Plan.doc` document provided by the prof. When tests are run and results are added to this document, please ensure to do the following:
+This report documents the manual and unit testing results. Because there are not very many tests, they should be manually double checked against unit tests. This document does not include the most up to date unit testing results. Its purpose is to serve as a formal source of test results including completion dates. These tests are copied from the `Assignment-5-Test-Plan.doc` document provided by the prof. When tests are run and results are added to this document, please ensure to do the following:
 
 - Complete the `Last Tested *` columns so we know when tests we're last completed. 
 - Append &#10004; `&#10004;` or &#x2717; `&#x2717;` to the Test Name when it passes or fails.
