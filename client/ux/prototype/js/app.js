@@ -33,27 +33,61 @@ app.controller('MainController', function($scope, $compile) {
                 newFolder: {name: "New Folder", callback: function(key, opt){ 
                     var col = $(this);
                     var colIndex = col.index();
-                    var branch = columnStack[colIndex];
-                    
+                    var folder = columnStack[colIndex];
+
                     var item = {
                          isFolder:true
                         ,isFile:false
                         ,name:"Unnamed"
-                        ,path:""
                         ,children:[]
+                        ,new:true
                     }
                     
+                    // [ Change the path ]
+                    // Use a random forbidden path to ensure uniqueness
+                    if(folder.path == "/"){
+                        item.path = "/     ";
+                    }else{
+                        item.path = folder.path + "/     ";
+                    }         
+                    
                     var el = $("<tree-item></tree-item>");
+                    el.addClass("editing");
+
+                    
                     var attrs = getAttrsFromData(item);
  
-                    // Don't need the following attributes
+                    // [ Don't need the following attributes ]
                     delete attrs.children;                     
                     
                     el.attr(attrs);
                     col.append(el);
                     
+                    // [ Add item to each open folder ]
+                    var els = $(".fileColumn").not(col).find("tree-item[path='" + folder.path + "']");
+                    els.each(function(){
+                        var clone = el.clone();
+                        var folder = $(this);
+                        folder.children(".itemContainer").children(".children").append(clone);
+                        
+                        // [ Compile the item ]
+                        $compile(clone)($scope);                        
+                    }) 
+                    
+                    
                     // [ Compile the item ]
                     $compile(el)($scope);
+                    
+                    setTimeout(function(){
+                        var textbox = el.children(".itemContainer").children(".itemNameContainer").find(".newName");
+                        textbox.focus();
+                        textbox[0].select();                        
+                    },1);
+                    
+                    // [ Add item to folder object ]
+                    folder.children.push(item);
+
+                    
                 }}
             }
         });       
@@ -75,16 +109,28 @@ app.controller('MainController', function($scope, $compile) {
                 var colIndex = col.index();
                 
                 // [ Get File Info ]
-                var item = findBranch(columnStack[colIndex],path,true);
+                var folder = columnStack[colIndex];
+                var item = findItemByPath(columnStack[colIndex],path,true);
                 
                 // [ Change file info ]
                 item.name = newName;
+                
+                // [ Change the path ]
+                if(folder.path == "/"){
+                    item.path = "/" + newName;
+                }else{
+                    item.path = folder.path + "/" + newName;
+                }            
+                
+                // [ Not new anymore ]
+                delete item.new;
                 
                 // [ Update UI with new name ]
                 var els = $("tree-item[path='" + path + "']");
                 els.each(function(){
                     var el = $(this);
-                    el.attr("name",newName);
+                    el.attr("name",item.name);
+                    el.attr("path",item.path);
                     el.children(".itemContainer").children(".itemNameContainer").find(".name").text(newName);
                 })
 
@@ -96,21 +142,24 @@ app.controller('MainController', function($scope, $compile) {
         })
     })();
     
-    function findBranch(branch,path,includeMetaData){
-        for(var i = 0; i < branch.length; i++){
-            var newBranch = [];
-            if(path == branch[i].path){
-                if(includeMetaData){
-                    newBranch = branch[i];                
-                }else{
-                    newBranch = branch[i].children;                    
-                }
+    function findItemByPath(branch,path){
+        var children = [];
+        if($.isArray(branch)){
+            children = branch;
+        }else{
+            children = branch.children;
+        }
+        
+        for(var i = 0; i < children.length; i++){
+            var item = {};
+            if(path == children[i].path){
+                item = children[i];
 
-                return newBranch;
+                return item;
             }
 
-            if(newBranch = findBranch(branch[i].children,path,includeMetaData)){
-                return newBranch;
+            if(item = findItemByPath(children[i],path)){
+                return item;
             }
         }                
 
@@ -153,56 +202,65 @@ app.controller('MainController', function($scope, $compile) {
     var columnStack = [];
     
     function renderFilesScreen(){
-        var tree = [
-            {
-                 isFolder:true
-                ,isFile:false
-                ,name:"Work"
-                ,path:"/Work"
-                ,children:[
-                    {
-                         isFolder:false
-                        ,isFile:true
-                        ,name:"myfile.txt"
-                        ,path:"/Work/myfile.txt"
-                        ,children:[]
-                    },
-                    {
-                         isFolder:true
-                        ,isFile:false
-                        ,name:"Q1"
-                        ,path:"/Work/Q1"
-                        ,children:[
-                            {
-                                 isFolder:false
-                                ,isFile:true
-                                ,name:"myspreadsheet.xls"
-                                ,path:"/Work/Q1/myspreadsheet.xls"
-                                ,children:[]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                 isFolder:true
-                ,isFile:false
-                ,name:"School"
-                ,path:"/School"
-                ,children:[]
-                
-            },
-            {
-                 isFolder:true
-                ,isFile:false
-                ,name:"Taxes"
-                ,path:"/Taxes"
-                ,children:[]
-            }
-        ];
+        
+        // [ Sample File Tree ]
+        // - This is an example response we would get back from GET /files
+        var root = {
+             isFolder:true
+            ,isFile:false
+            ,name:""
+            ,path:"/"
+            ,children:[
+                {
+                     isFolder:true
+                    ,isFile:false
+                    ,name:"Work"
+                    ,path:"/Work"
+                    ,children:[
+                        {
+                             isFolder:false
+                            ,isFile:true
+                            ,name:"myfile.txt"
+                            ,path:"/Work/myfile.txt"
+                            ,children:[]
+                        },
+                        {
+                             isFolder:true
+                            ,isFile:false
+                            ,name:"Q1"
+                            ,path:"/Work/Q1"
+                            ,children:[
+                                {
+                                     isFolder:false
+                                    ,isFile:true
+                                    ,name:"myspreadsheet.xls"
+                                    ,path:"/Work/Q1/myspreadsheet.xls"
+                                    ,children:[]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                     isFolder:true
+                    ,isFile:false
+                    ,name:"School"
+                    ,path:"/School"
+                    ,children:[]
 
-        columnStack.push(tree);
-        $.each(tree, function(i,item){
+                },
+                {
+                     isFolder:true
+                    ,isFile:false
+                    ,name:"Taxes"
+                    ,path:"/Taxes"
+                    ,children:[]
+                }
+            ]
+        };
+
+        columnStack.push(root);
+        $.each(root.children, function(i,item){
             // [ Create and append all the branches ]
             var el = createTreeItem(item,$(".fileColumn").first());
             
@@ -242,32 +300,12 @@ app.controller('MainController', function($scope, $compile) {
             }
             
             // [ Add the new column to the column stack ]
-            var branch = columnStack[colIndex];
-            var newBranch = findBranch(branch,path);
-            columnStack.push(newBranch);    
-            
-//            for(var i = 0; i < branch.length; i++){
-//                if(name == branch[i].name){
-//                    newBranch = branch[i].children;
-//                    columnStack.push(newBranch);
-//                    break;
-//                }
-//            }
-        
+            var folder = columnStack[colIndex];
+            var newFolder = findItemByPath(folder,path);
+            columnStack.push(newFolder);    
+
             // [ Add the item elements to column ]
-            $.each(newBranch, function(i,item){
-//                var el = $("<tree-item></tree-item>");
-//
-//                var attrs = getAttrsFromData(item);
-//
-//                // Don't need the following attributes
-//                delete attrs.children; 
-//
-//                el.attr(attrs);
-//
-//                newCol.append(el);
-//                $compile(el)($scope);
-                
+            $.each(newFolder.children, function(i,item){
                 // [ Create and append all the branches ]
                 var el = createTreeItem(item,newCol);
 
