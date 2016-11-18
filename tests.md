@@ -4,6 +4,8 @@ This report documents the manual and unit testing results. Because there are not
 - Complete the `Last Tested *` columns so we know when tests we're last completed. 
 - Append &#10004; `&#10004;` or &#x2717; `&#x2717;` to the Test Name when it passes or fails.
 - Add Extra Notes if applicable
+- Add commit message using the following format:
+  - Tested N-001 ✓, E-001 ✗, etc.
 
 Because this file is tracked by .git, the change history can also act as a record of test history which is handy. You can view the test history by going to [this link](https://github.com/BenLorantfy/SOA-A5/commits/master/tests.md)
 
