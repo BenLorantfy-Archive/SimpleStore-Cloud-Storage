@@ -5,7 +5,7 @@ This report documents the manual and unit testing results. Because there are not
 - Append &#10004; `&#10004;` or &#x2717; `&#x2717;` to the Test Name when it passes or fails.
 - Add Extra Notes if applicable
 
-Because this file is tracked by .git, the change history can also act as a record of test history which is handy.
+Because this file is tracked by .git, the change history can also act as a record of test history which is handy. You can view the test history by going to [this link](https://github.com/BenLorantfy/SOA-A5/commits/master/tests.md)
 
 ## TEST DECK #1
 | Test Name                | N-001 &#x2717;                                                                                    | 
