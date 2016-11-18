@@ -37,7 +37,7 @@ tree-item .arrow{
     transition: all 0.2s;
 }
 
-tree-item.expanded > .itemContainer > .itemNameContainer > .arrow{
+tree-item.expanded > .itemContainer > .itemNameContainer .arrow{
     transform:rotate(90deg);
 }
 
@@ -64,4 +64,30 @@ tree-item .children:empty::after{
     font-style: italic;
     padding:10px;
     padding-top:15px;
+}
+
+tree-item .newName{
+    border:1px solid grey;
+    background-color:none;
+    border-radius: 4px;
+/*    padding:2px;*/
+    font-size:14px;
+    width: 120px;
+}
+
+tree-item > .itemContainer > .itemNameContainer .newName{
+    display: none;
+}
+
+tree-item.editing > .itemContainer > .itemNameContainer .name{
+    display: none;
+}
+
+tree-item.editing > .itemContainer > .itemNameContainer .newName{
+    display: inline-block;
+}
+
+tree-item{
+    user-select:none;
+    -webkit-user-select:none;
 }

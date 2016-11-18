@@ -4,6 +4,119 @@
 var app = angular.module('app', []);
 
 app.controller('MainController', function($scope, $compile) {
+    (function contextMenuEvents(){
+        $.contextMenu({
+            // define which elements trigger this menu
+            selector: "tree-item",
+            // define the elements of the menu
+            items: {
+                newFolder: {name: "Rename", callback: function(key, opt){ 
+                    
+                    // [ Hide all the old textboxes ]
+                    $("tree-item").removeClass("editing");      
+                    
+                    var el = $(this);
+                    el.addClass("editing");
+                    
+                    var textbox = el.children(".itemContainer").children(".itemNameContainer").find(".newName");
+                    textbox.focus();
+                    textbox[0].select();
+                }}
+            }
+        });  
+        
+        $.contextMenu({
+            // define which elements trigger this menu
+            selector: ".fileColumn",
+            // define the elements of the menu
+            items: {
+                newFolder: {name: "New Folder", callback: function(key, opt){ 
+                    var col = $(this);
+                    var colIndex = col.index();
+                    var branch = columnStack[colIndex];
+                    
+                    var item = {
+                         isFolder:true
+                        ,isFile:false
+                        ,name:"Unnamed"
+                        ,path:""
+                        ,children:[]
+                    }
+                    
+                    var el = $("<tree-item></tree-item>");
+                    var attrs = getAttrsFromData(item);
+ 
+                    // Don't need the following attributes
+                    delete attrs.children;                     
+                    
+                    el.attr(attrs);
+                    col.append(el);
+                    
+                    // [ Compile the item ]
+                    $compile(el)($scope);
+                }}
+            }
+        });       
+        
+        
+        $("body").on("keydown",".newName",function(e){
+            if(e.keyCode == 13){
+                // [ Get new name ]
+                var newName = $(this).val();
+                // todo: validate that newName is a valid fileName
+            
+                
+                // [ Get Fil ePath ]
+                var el = $(this).closest("tree-item");
+                var path = el.attr("path");
+                
+                // [ Get Column ]
+                var col = $(this).closest(".fileColumn");
+                var colIndex = col.index();
+                
+                // [ Get File Info ]
+                var item = findBranch(columnStack[colIndex],path,true);
+                
+                // [ Change file info ]
+                item.name = newName;
+                
+                // [ Update UI with new name ]
+                var els = $("tree-item[path='" + path + "']");
+                els.each(function(){
+                    var el = $(this);
+                    el.attr("name",newName);
+                    el.children(".itemContainer").children(".itemNameContainer").find(".name").text(newName);
+                })
+
+                
+                // [ Hide all the textboxes ]
+                $("tree-item").removeClass("editing");
+                
+            }
+        })
+    })();
+    
+    function findBranch(branch,path,includeMetaData){
+        for(var i = 0; i < branch.length; i++){
+            var newBranch = [];
+            if(path == branch[i].path){
+                if(includeMetaData){
+                    newBranch = branch[i];                
+                }else{
+                    newBranch = branch[i].children;                    
+                }
+
+                return newBranch;
+            }
+
+            if(newBranch = findBranch(branch[i].children,path,includeMetaData)){
+                return newBranch;
+            }
+        }                
+
+        return false;
+    }
+    
     function getAttrsFromData(data){
         var attrs = $.extend({},data);
         for(var key in attrs){
@@ -36,7 +149,9 @@ app.controller('MainController', function($scope, $compile) {
         return el;
     }
     
+    // Stack of column data from right to left
     var columnStack = [];
+    
     function renderFilesScreen(){
         var tree = [
             {
@@ -107,6 +222,7 @@ app.controller('MainController', function($scope, $compile) {
         
         $("#filesScreen").on("click","tree-item .itemNameContainer",function(e){
             if($(e.target).closest(".arrow").length > 0) return;
+            if($(e.target).closest(".newName").length > 0) return;
             
             var name = $(this).closest("tree-item").attr("name");
             var path = $(this).closest("tree-item").attr("path");
@@ -127,7 +243,9 @@ app.controller('MainController', function($scope, $compile) {
             
             // [ Add the new column to the column stack ]
             var branch = columnStack[colIndex];
-            var newBranch = findBranch(branch);
+            var newBranch = findBranch(branch,path);
+            columnStack.push(newBranch);    
+            
 //            for(var i = 0; i < branch.length; i++){
 //                if(name == branch[i].name){
 //                    newBranch = branch[i].children;
@@ -135,24 +253,6 @@ app.controller('MainController', function($scope, $compile) {
 //                    break;
 //                }
 //            }
-            
-            function findBranch(branch){
-                for(var i = 0; i < branch.length; i++){
-                    var newBranch = [];
-                    if(path == branch[i].path){
-                        newBranch = branch[i].children;
-                        columnStack.push(newBranch);
-                        
-                        return newBranch;
-                    }
-                    
-                    if(newBranch = findBranch(branch[i].children)){
-                        return newBranch;
-                    }
-                }                
-                
-                return false;
-            }
         
             // [ Add the item elements to column ]
             $.each(newBranch, function(i,item){

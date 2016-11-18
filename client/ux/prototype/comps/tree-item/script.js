@@ -7,7 +7,6 @@
             scope: {
                  "name": '@'
                 ,"isFolder": '@'
-                
             },
             "transclude": true,
             templateUrl: 'comps/' + hyphenCase + '/markup.html',
