@@ -11,6 +11,7 @@ var path    = require('path');              // File Path parsing
 var knex    = require("knex");              // SQL query builder
 var bcrypt  = require("bcrypt-nodejs");     // Password hashing
 var winston = require('winston');           // Logging
+var Promise = require('promise');           // Promises
     
 // [ Config file with db credentials ]
 var config  = require("./config.json");     // Config file with database username and password
@@ -41,7 +42,7 @@ var errors = {
     ,PASSWORDS_NOT_MATCHING:9
 }
 
-var base = path.dirname(require.main.filename) + '\\' + 'UploadedFiles';
+var base = path.join(path.dirname(require.main.filename),'UploadedFiles');
 
 // [ Middleware to get the request body ]
 app.use (function(req, res, next) {
@@ -205,6 +206,99 @@ app.post("/token",function(req,res){
 
 });
 
+app.get("/files",function(req,res){
+    var username = "ben";
+    var root = {
+         "name":"root"
+        ,"isFolder":true
+        ,"isFile":false
+        ,"name":""
+        ,"path":"/"
+        ,children:[]
+    };
+    
+    // [ If UploadedFiles folder doesnt exist, create it ]
+    if(!fs.existsSync(base)) {
+        fs.mkdirSync(base);
+    }
+    
+    // [ Generate user path ]
+    var user_path = path.join(base,username);
+    
+    // [ Convert fs.readdir to promise using function ]
+    var readdir = Promise.denodeify(require('fs').readdir);
+    var stat    = Promise.denodeify(require('fs').stat);
+    
+    // [ Recurssive function to search file tree ]
+    (function getFiles(folder,item){
+        return new Promise(function (fulfill, reject){
+            var folderPath = path.join(user_path,folder);
+            readdir(folderPath).then(function(files){
+                if(files){
+                    if(files.length == 0){
+                        fulfill();
+                        return;
+                    }
+
+                    var numDone = 0;
+                    for(var i = 0; i < files.length; i++){
+                        var file = files[i];
+
+                         var childItem = {
+                             "name":file
+                            ,"isFolder":false
+                            ,"isFile":true
+                            ,"path":path.join(folder,file)
+                            ,children:[]
+                        };          
+
+                        item.children.push(childItem);
+
+                        (function(childItem,file){
+                            stat(path.join(folderPath,file)).then(function(stat){
+
+
+                                childItem.isFolder = stat.isDirectory();
+                                childItem.isFile = !childItem.isFolder;
+
+                                if(childItem.isFolder){
+                                    var newFolder = path.join(folder,file);
+
+                                    getFiles(newFolder,childItem)
+                                        .done(function(){
+
+                                            numDone++;
+                                            if(numDone == files.length){
+                                                fulfill();
+                                            }
+                                        })
+                                }else{
+                                    numDone++;
+                                    if(numDone == files.length){
+                                        fulfill();
+                                    }
+                                }
+
+
+                            })                            
+                        })(childItem,file);
+
+                    }
+                }else{
+                    fulfill();
+                }
+            })           
+        });
+
+    })("/",root).done(function(){
+        res.json(root);
+    })
+    
+    
+});
+
+
+
 // [ creates a new directory under the current users base folder]
 app.post("/folders", function(req,res) {
 
@@ -228,7 +322,7 @@ app.post("/folders", function(req,res) {
     }
 
     //generate user path
-    var user_path =  base + '\\' + username;
+    var user_path =  path.join(base,username);
 
 
     //if user folder doesnt exist, create it..
@@ -237,7 +331,7 @@ app.post("/folders", function(req,res) {
     }
 
     //generate full path
-    var full_path =  user_path + '\\' +  new_path;
+    var full_path =  path.join(user_path,new_path);
     path.normalize(full_path);
 
     //check if parent directory exists
@@ -253,6 +347,7 @@ app.post("/folders", function(req,res) {
     });
 
 });
+
 
 // [ Listen for requests ]
 (function(port){

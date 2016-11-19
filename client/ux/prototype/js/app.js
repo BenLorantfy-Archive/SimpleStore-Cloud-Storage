@@ -30,6 +30,38 @@ app.controller('MainController', function($scope, $compile) {
             selector: ".fileColumn",
             // define the elements of the menu
             items: {
+                uploadFiles: {name: "Upload File(s)", callback: function(key, opt){ 
+                    // [ Remove the old file input ]
+                    $("#fileInput").remove();
+                    
+                    // [ Add the new input ]
+                    var input = $('<input id="fileInput" style="display:none;" type="file" multiple />');
+                    $("body").append(input);
+                    
+                    // [ Add event listener for when user selects files or folders ]
+                    input.change(function(){
+                        
+                    })
+                    
+                    // [ Trigger the input being clicked ]
+                    input.click();
+                }},
+                uploadFolder: {name: "Upload Folder", callback: function(key, opt){ 
+                    // [ Remove the old file input ]
+                    $("#fileInput").remove();
+                    
+                    // [ Add the new input ]
+                    var input = $('<input id="fileInput" style="display:none;" type="file" webkitdirectory mozdirectory msdirectory odirectory directory multiple />');
+                    $("body").append(input);
+                    
+                    // [ Add event listener for when user selects files or folders ]
+                    input.change(function(){
+                        
+                    })
+                    
+                    // [ Trigger the input being clicked ]
+                    input.click();
+                }},
                 newFolder: {name: "New Folder", callback: function(key, opt){ 
                     var col = $(this);
                     var colIndex = col.index();
