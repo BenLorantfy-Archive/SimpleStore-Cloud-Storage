@@ -7,7 +7,7 @@
     "build": "tsc index.ts",
     "build:full": "tsc index.ts & tsc test.ts",
     "test": "npm run build:full & node test.js",
-    "install": "npm run build"
+    "install": "npm install -g typescript & npm run build"
   },
   "author": "Grigory Kozyrev <grikzyrev@gmail.com> (http://gkozyrev.com)",
   "license": "ISC"
