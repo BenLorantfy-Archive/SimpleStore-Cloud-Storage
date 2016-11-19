@@ -89,7 +89,8 @@ input[type="button"],button{
 
 .fileColumn{
     width:250px;
-    border-right:1px solid #B4BBBF;
+/*    border-right:1px solid #B4BBBF;*/
+    border-right:1px solid #E5E5E5;
     height: 100%;
     padding:20px;
     color:grey;
