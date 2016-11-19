@@ -110,8 +110,8 @@ function isPathValid(filepath){
     if(filepath.includes('..') || filepath.includes('.')) {
         return false;
     }
-    //todo: add regex for valid path
 
+    //todo: add regex for valid path
     return true;
 }
 
@@ -197,7 +197,6 @@ app.post("/token",function(req,res){
     
 
 });
-
 
 // [ creates a new directory under the current users base folder]
 app.post("/folders", function(req,res) {
