@@ -7,6 +7,7 @@
 var express = require('express');           // Routing
 var cors    = require('cors');              // Getting around cross domain restrictions
 var fs      = require('fs');                // File system access
+var path    = require('path');              // File Path parsing
 var knex    = require("knex");              // SQL query builder
 var bcrypt  = require("bcrypt-nodejs");     // Password hashing
     
@@ -34,6 +35,8 @@ var errors = {
     ,BAD_PASSWORD:8
     ,PASSWORDS_NOT_MATCHING:9
 }
+
+var base = path.dirname(require.main.filename) + '\\' + 'UploadedFiles';
 
 // [ Middleware to get the request body ]
 app.use (function(req, res, next) {
@@ -79,6 +82,18 @@ function error(message,code){
     });
 }
 
+function success(message,code){
+    if(!code){
+        var code = 0;
+    }
+
+    return JSON.stringify({
+        message:message,
+        code:code,
+        error:false
+    });
+}
+
 function isPlainObj(o) {
   return typeof o == 'object' && o.constructor == Object;
 }
@@ -88,6 +103,16 @@ function generateGUID(){
         var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
         return v.toString(16);
     });   
+}
+
+function isPathValid(filepath){
+
+    if(filepath.includes('..') || filepath.includes('.')) {
+        return false;
+    }
+
+
+    return true;
 }
 
 // [ Allows cross origin requests ]
@@ -170,6 +195,49 @@ app.post("/token",function(req,res){
         authenticate();
     }
     
+
+});
+
+
+// [ creates a new directory under the current users base folder]
+app.post("/folders", function(req,res) {
+
+    var username = 'kyle';
+
+    //check if body exists
+    if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
+    var data = req.body;
+
+    //check if path key exists
+    if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
+
+    //validate path
+    var new_path = path.normalize(data.path);
+    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.MISSING_FIELD));
+
+    //generate user path
+    var user_path =  base + '\\' + username;
+
+    //if user folder doesnt exist, create it..
+    if(!fs.existsSync(user_path)) {
+        fs.mkdirSync(user_path);
+    }
+
+    //generate full path
+    var full_path =  user_path + '\\' +  new_path;
+    path.normalize(full_path);
+
+    //check if parent directory exists
+    if(!fs.existsSync(path.dirname(full_path)))         return res.end(error("Parent Directory does not exist"));
+
+    //create new dir
+    fs.mkdir(full_path, function (data) {
+        if(!data) {
+            return res.end(success("Directory Craeted"));
+        } else {
+            return res.end(error(data.message));
+        }
+    });
 
 });
 
