@@ -244,7 +244,7 @@ app.get("/files",function(req,res){
                     for(var i = 0; i < files.length; i++){
                         var file = files[i];
 
-                         var childItem = {
+                        var childItem = {
                              "name":file
                             ,"isFolder":false
                             ,"isFile":true
