@@ -30,14 +30,12 @@ app.controller('MainController', function($scope, $compile) {
                     var folder = columnStack[colIndex];
                     
                     var item = findItemByPath(folder,path);
-//                    window.item = item;
-//                    console.log(item);
                     
                     // [ Remove from tree object ]
                     item.parent.children.splice(item.parent.children.indexOf(item),1);
                     
                     // [ remove all the elements from the DOM ]
-                    $("tree-item[path='" + item.path + "']").remove();
+                    $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();
                 }}
             }
         });  
@@ -113,7 +111,7 @@ app.controller('MainController', function($scope, $compile) {
                     col.append(el);
                     
                     // [ Add item to each open folder ]
-                    var els = $(".fileColumn").not(col).find("tree-item[path='" + folder.path + "']");
+                    var els = $(".fileColumn").not(col).find("tree-item[path='" + folder.path.replace(/'/g,"\\'") + "']");
                     els.each(function(){
                         var clone = el.clone();
                         var folder = $(this);
@@ -175,7 +173,7 @@ app.controller('MainController', function($scope, $compile) {
                 delete item.new;
                 
                 // [ Update UI with new name ]
-                var els = $("tree-item[path='" + path + "']");
+                var els = $("tree-item[path='" + path.replace(/'/g,"\\'") + "']");
                 els.each(function(){
                     var el = $(this);
                     el.attr("name",item.name);
@@ -313,16 +311,22 @@ app.controller('MainController', function($scope, $compile) {
                 }
             ]
         };
+        
+        var newCol = $("<div class='fileColumn'></div>");
+        $("#fileColumnHolder").append(newCol);
+        newCol.append("<div class='fileColumnHeader'>/</div>");
 
         columnStack.push(root);
         $.each(root.children, function(i,item){
             // [ Create and append all the branches ]
-            var el = createTreeItem(item,$(".fileColumn").first());
+            var el = createTreeItem(item,newCol);
             
             // [ Compile all the branches ]
             $compile(el)($scope);
                  
         });
+        
+        
         
     }
     
@@ -348,6 +352,9 @@ app.controller('MainController', function($scope, $compile) {
             
             var newCol = $("<div class='fileColumn'></div>");
             $("#fileColumnHolder").append(newCol);
+            
+            // [ Append the header ]
+            newCol.append("<div class='fileColumnHeader'>" + path.replace(/\//g," / ") + "</div>");
             
             // [ Remove all the old columns from the column stack ]
             for(var i = columnStack.length; i > colIndex; i--){

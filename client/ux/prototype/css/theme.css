@@ -11,6 +11,7 @@ html,body{
     background-color:#F2F2F2;
     font-family: Helvetica, Arial, sans-serif;
     overflow:hidden;
+    font-weight: 100;
 }
 
 *{
@@ -77,6 +78,7 @@ input[type="button"],button{
 
 #fileColumnHolder{
     height: 100%;
+    background-color:white;
 }
 
 .fileColumn{
@@ -87,6 +89,13 @@ input[type="button"],button{
     color:grey;
     display: inline-block;
     vertical-align: top;
+    background-color:#F2F2F2;
+}
+
+.fileColumnHeader{
+    color:#CECBD1;
+    font-size: 20px;
+    margin-bottom:10px;
 }
 
 .hide{
