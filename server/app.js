@@ -7,17 +7,23 @@
 var express = require('express');           // Routing
 var cors    = require('cors');              // Getting around cross domain restrictions
 var fs      = require('fs');                // File system access
+var path    = require('path');              // File Path parsing
 var knex    = require("knex");              // SQL query builder
 var bcrypt  = require("bcrypt-nodejs");     // Password hashing
+var winston = require('winston');           // Logging
     
 // [ Config file with db credentials ]
 var config  = require("./config.json");     // Config file with database username and password
+var database_manager = require("./database_manager");
 
 // [ Start server ]
 console.log("Starting server...");
 
 // [ The Knex query builder instance ]
 var db = knex(config);
+
+// [ attach log file ]
+winston.add(winston.transports.File, { filename: 'server_logs.log' });
 
 // [ Create the express app ]
 var app = express();
@@ -34,6 +40,8 @@ var errors = {
     ,BAD_PASSWORD:8
     ,PASSWORDS_NOT_MATCHING:9
 }
+
+var base = path.dirname(require.main.filename) + '\\' + 'UploadedFiles';
 
 // [ Middleware to get the request body ]
 app.use (function(req, res, next) {
@@ -71,11 +79,25 @@ function error(message,code){
     if(!code){
         var code = 0;
     }
-    
+    winston.log('error', message, { "user": "place current user here"});
+
     return JSON.stringify({
         message:message,
         code:code,
         error:true
+    });
+}
+
+function success(message,code){
+    if(!code){
+        var code = 0;
+    }
+    winston.log('info', message, { "user": "place current user here"});
+
+    return JSON.stringify({
+        message:message,
+        code:code,
+        error:false
     });
 }
 
@@ -88,6 +110,16 @@ function generateGUID(){
         var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
         return v.toString(16);
     });   
+}
+
+function isPathValid(filepath){
+
+    if(filepath.includes('..') || filepath.includes('.')) {
+        return false;
+    }
+
+    //todo: add regex for valid path
+    return true;
 }
 
 // [ Allows cross origin requests ]
@@ -173,7 +205,6 @@ app.post("/token",function(req,res){
 
 });
 
-
 app.get("/files",function(){
     var username = "ben";
     var root = {
@@ -192,9 +223,60 @@ function getFiles(folder){
     
 }
 
+// [ creates a new directory under the current users base folder]
+app.post("/folders", function(req,res) {
+
+    //todo: get actual user form headers
+    var username = 'kyle';
+
+    //check if body exists
+    if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
+    var data = req.body;
+
+    //check if path key exists
+    if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
+
+    //validate path
+    var new_path = path.normalize(data.path);
+    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.MISSING_FIELD));
+
+    //if UploadedFiles folder doesnt exist, create it..
+    if(!fs.existsSync(base)) {
+        fs.mkdirSync(base);
+    }
+
+    //generate user path
+    var user_path =  base + '\\' + username;
+
+
+    //if user folder doesnt exist, create it..
+    if(!fs.existsSync(user_path)) {
+        fs.mkdirSync(user_path);
+    }
+
+    //generate full path
+    var full_path =  user_path + '\\' +  new_path;
+    path.normalize(full_path);
+
+    //check if parent directory exists
+    if(!fs.existsSync(path.dirname(full_path)))         return res.end(error("Parent Directory does not exist"));
+
+    //create new dir
+    fs.mkdir(full_path, function (data) {
+        if(!data) {
+            return res.end(success("Directory Created"));
+        } else {
+            return res.end(error(data.message));
+        }
+    });
+
+});
+
+
 // [ Listen for requests ]
 (function(port){
     app.listen(port, function () {
         console.log('Web server listening on port ' + port + '...');
+        database_manager.test();
     });    
 })(1337);

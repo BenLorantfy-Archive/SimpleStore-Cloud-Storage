@@ -1,29 +1,33 @@
-
 {
   "name": "SimpleStore",
   "version": "0.0.0",
   "description": "A simple cloud storage application",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "build": "npm build ./database_manager",
+    "start": "npm run build & node app.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/BenLorantfy/SOA-A5"
   },
   "dependencies": {
-     "express": "^4.13.3"
-    ,"cors":">0.0.0"
-    ,"fs":">0.0.0"
-    ,"knex":">0.0.0"
-    ,"bcrypt-nodejs":">0.0.0"
+    "bcrypt-nodejs": ">0.0.0",
+    "cors": ">0.0.0",
+    "express": "^4.13.3",
+    "fs": ">0.0.0",
+    "knex": ">0.0.0",
+    "mysql": "^2.12.0",
+	"winston": "^2.3.0"
   },
   "keywords": [
     "node"
   ],
   "author": "Ben Lorantfy",
   "contributors": [
-    "Ben Lorantfy <ben@benlorantfy.com> (http://benlorantfy.com/)"
+    "Ben Lorantfy <ben@benlorantfy.com> (http://benlorantfy.com/)",
+    "Amshar Basheer <amsharb@gmail.com>",
+	"Kyle Stevenson <ky_steve@hotmail.com>"
   ],
   "license": "MIT"
 }
