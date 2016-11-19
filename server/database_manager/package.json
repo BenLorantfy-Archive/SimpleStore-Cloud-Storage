@@ -1,0 +1,14 @@
+{
+  "name": "database_manager",
+  "version": "1.0.0",
+  "description": "Module to manage database connection, insert, update, search and delete",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc index.ts",
+    "build:full": "tsc index.ts & tsc test.ts",
+    "test": "npm run build:full & node test.js",
+    "install": "npm run build"
+  },
+  "author": "Grigory Kozyrev <grikzyrev@gmail.com> (http://gkozyrev.com)",
+  "license": "ISC"
+}
