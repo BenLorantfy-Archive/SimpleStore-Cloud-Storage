@@ -37,7 +37,7 @@ app.controller('MainController', function($scope, $compile) {
                     item.parent.children.splice(item.parent.children.indexOf(item),1);
                     
                     // [ remove all the elements from the DOM ]
-                    $("tree-item[path='" + item.path + "']").remove();
+                    $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();
                 }}
             }
         });  
