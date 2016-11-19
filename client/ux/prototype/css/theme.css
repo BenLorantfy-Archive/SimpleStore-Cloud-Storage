@@ -81,6 +81,12 @@ input[type="button"],button{
     background-color:white;
 }
 
+.fileColumnHolder{
+    height: 100%;
+    display: inline-block;
+    vertical-align: top;
+}
+
 .fileColumn{
     width:250px;
     border-right:1px solid #B4BBBF;

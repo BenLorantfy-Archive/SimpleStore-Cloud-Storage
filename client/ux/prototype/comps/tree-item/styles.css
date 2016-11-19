@@ -6,10 +6,13 @@ tree-item .itemContainer{
 
 tree-item .itemNameContainer{
     padding:2px;
+    padding-left:4px;
     position: relative;
+    font-size: 14px;
+    transition: background-color 0.15s;
 }
 
-tree-item[is-folder="true"] > .itemContainer > .itemNameContainer.selected::after{
+tree-item[is-folder="true"] > .itemContainer > .itemNameContainer::after{
     
     content:"";
     height:100%;
@@ -18,7 +21,7 @@ tree-item[is-folder="true"] > .itemContainer > .itemNameContainer.selected::afte
     display: block;
     position: absolute;
     top:0;
-    right:-17px;
+    right:-15px;
     background-image:url(img/columnArrow.png);
     background-size: contain;
     background-repeat: no-repeat;
@@ -27,14 +30,17 @@ tree-item[is-folder="true"] > .itemContainer > .itemNameContainer.selected::afte
 
 tree-item .folder{
     vertical-align: middle;
-    width:20px;
+    width:17px;
+    margin-top:-2px;
 }
 
 tree-item .arrow{
     vertical-align: middle;
-    width:10px;
-    margin-right:5px;
+    width:9px;
+    margin-right:3px;
+    opacity: 0.7;
     transition: all 0.2s;
+    margin-top:-1px;
 }
 
 tree-item.expanded > .itemContainer > .itemNameContainer .arrow{
@@ -51,7 +57,8 @@ tree-item{
 
 tree-item .selected{
 /*    background-color:#CAD1D6;*/
-    background-color:#D8E0E5;
+/*    background-color:#D8E0E5;*/
+    background-color:#E5E5E5;
 }
 
 tree-item .itemContainer .children{
