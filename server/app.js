@@ -10,6 +10,7 @@ var fs      = require('fs');                // File system access
 var path    = require('path');              // File Path parsing
 var knex    = require("knex");              // SQL query builder
 var bcrypt  = require("bcrypt-nodejs");     // Password hashing
+var winston = require('winston');           // Logging
     
 // [ Config file with db credentials ]
 var config  = require("./config.json");     // Config file with database username and password
@@ -20,6 +21,9 @@ console.log("Starting server...");
 
 // [ The Knex query builder instance ]
 var db = knex(config);
+
+// [ attach log file ]
+winston.add(winston.transports.File, { filename: 'server_logs.log' });
 
 // [ Create the express app ]
 var app = express();
@@ -75,7 +79,8 @@ function error(message,code){
     if(!code){
         var code = 0;
     }
-    
+    winston.log('error', message, { "user": "place current user here"});
+
     return JSON.stringify({
         message:message,
         code:code,
@@ -87,6 +92,7 @@ function success(message,code){
     if(!code){
         var code = 0;
     }
+    winston.log('info', message, { "user": "place current user here"});
 
     return JSON.stringify({
         message:message,
@@ -216,8 +222,14 @@ app.post("/folders", function(req,res) {
     var new_path = path.normalize(data.path);
     if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.MISSING_FIELD));
 
+    //if UploadedFiles folder doesnt exist, create it..
+    if(!fs.existsSync(base)) {
+        fs.mkdirSync(base);
+    }
+
     //generate user path
     var user_path =  base + '\\' + username;
+
 
     //if user folder doesnt exist, create it..
     if(!fs.existsSync(user_path)) {
@@ -234,7 +246,7 @@ app.post("/folders", function(req,res) {
     //create new dir
     fs.mkdir(full_path, function (data) {
         if(!data) {
-            return res.end(success("Directory Craeted"));
+            return res.end(success("Directory Created"));
         } else {
             return res.end(error(data.message));
         }
