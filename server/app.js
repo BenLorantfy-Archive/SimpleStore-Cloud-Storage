@@ -173,6 +173,25 @@ app.post("/token",function(req,res){
 
 });
 
+
+app.get("/files",function(){
+    var username = "ben";
+    var root = {
+         "name":"root"
+        ,"isFolder":true
+        ,"isFile":false
+        ,"name":""
+        ,"path":"/"
+        ,children:[]
+    };
+    
+    getFiles(root);
+});
+
+function getFiles(folder){
+    
+}
+
 // [ Listen for requests ]
 (function(port){
     app.listen(port, function () {
