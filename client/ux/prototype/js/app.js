@@ -312,8 +312,10 @@ app.controller('MainController', function($scope, $compile) {
             ]
         };
         
+        var colHolder = $("<div class='fileColumnHolder'></div>");
         var newCol = $("<div class='fileColumn'></div>");
-        $("#fileColumnHolder").append(newCol);
+        colHolder.append(newCol);
+        $("#fileColumnHolder").append(colHolder);
         newCol.append("<div class='fileColumnHeader'>/</div>");
 
         columnStack.push(root);
@@ -337,24 +339,47 @@ app.controller('MainController', function($scope, $compile) {
             item.children(".itemContainer").children(".children").slideToggle("fast");
         });
         
+        $("#filesScreen").on("click",".fileColumnHolder",function(e){
+            console.log("HAIII");
+            if($(e.target).closest("tree-item").length > 0) return;
+            console.log("HAI URSELF");
+            var currCol = $(this);
+            var colIndex = currCol.index();
+            
+            // [ Remove all the old columns from the column stack ]
+            for(var i = columnStack.length; i > colIndex; i--){
+                columnStack.splice(i,1);
+            }
+            
+             // [ Create the new column and delete any extra ones ]
+            currCol.nextAll().animate({ width: 'toggle' },200,function(){
+                $(this).remove();
+            })
+            currCol.find(".itemNameContainer").removeClass("selected");
+        })
+        
         $("#filesScreen").on("click","tree-item .itemNameContainer",function(e){
             if($(e.target).closest(".arrow").length > 0) return;
             if($(e.target).closest(".newName").length > 0) return;
             
             var name = $(this).closest("tree-item").attr("name");
             var path = $(this).closest("tree-item").attr("path");
-            var parent = $(this).closest(".fileColumn");
+            var parent = $(this).closest(".fileColumnHolder");
             var colIndex = parent.index();
-            var currCol = $(".fileColumn").eq(colIndex);
+            var currCol = $(".fileColumnHolder").eq(colIndex);
             
             // [ Create the new column and delete any extra ones ]
             currCol.nextAll().remove();
             
+            var colHolder = $("<div class='fileColumnHolder'>");
             var newCol = $("<div class='fileColumn'></div>");
-            $("#fileColumnHolder").append(newCol);
+            colHolder.append(newCol);
+            $("#fileColumnHolder").append(colHolder);
             
             // [ Append the header ]
             newCol.append("<div class='fileColumnHeader'>" + path.replace(/\//g," / ") + "</div>");
+            
+            var oldLength = columnStack.length;
             
             // [ Remove all the old columns from the column stack ]
             for(var i = columnStack.length; i > colIndex; i--){
@@ -366,6 +391,15 @@ app.controller('MainController', function($scope, $compile) {
             var newFolder = findItemByPath(folder,path);
             columnStack.push(newFolder);    
 
+            var newLength = columnStack.length;
+            
+            if(newLength > oldLength){
+                colHolder.animate({ width: 'toggle' },0,"linear", function(){
+                    colHolder.animate({ width: 'toggle' },200); 
+                });
+               
+            }
+            
             // [ Add the item elements to column ]
             $.each(newFolder.children, function(i,item){
                 // [ Create and append all the branches ]
@@ -373,6 +407,7 @@ app.controller('MainController', function($scope, $compile) {
 
                 // [ Compile all the branches ]
                 $compile(el)($scope);
+                
             })            
             
             // [ Highlight the selected folder ]
