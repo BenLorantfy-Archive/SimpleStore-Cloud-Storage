@@ -70,7 +70,8 @@ tree-item .children:empty::after{
     content: "Empty";
     font-style: italic;
     padding:10px;
-    padding-top:15px;
+    padding-top:18px;
+    font-size:14px;
 }
 
 tree-item .newName{

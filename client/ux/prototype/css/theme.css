@@ -79,6 +79,10 @@ input[type="button"],button{
 #fileColumnHolder{
     height: 100%;
     background-color:white;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width:100%;
 }
 
 .fileColumnHolder{
