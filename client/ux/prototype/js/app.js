@@ -10,7 +10,7 @@ app.controller('MainController', function($scope, $compile) {
             selector: "tree-item",
             // define the elements of the menu
             items: {
-                newFolder: {name: "Rename", callback: function(key, opt){ 
+                renameItem: {name: "Rename", callback: function(key, opt){ 
                     
                     // [ Hide all the old textboxes ]
                     $("tree-item").removeClass("editing");      
@@ -21,6 +21,23 @@ app.controller('MainController', function($scope, $compile) {
                     var textbox = el.children(".itemContainer").children(".itemNameContainer").find(".newName");
                     textbox.focus();
                     textbox[0].select();
+                }},
+                deleteItem: {name: "Delete", callback: function(key, opt){ 
+                    var el = $(this);
+                    var path = el.attr("path");
+                    var col = $(this).closest(".fileColumn");
+                    var colIndex = col.index();
+                    var folder = columnStack[colIndex];
+                    
+                    var item = findItemByPath(folder,path);
+//                    window.item = item;
+//                    console.log(item);
+                    
+                    // [ Remove from tree object ]
+                    item.parent.children.splice(item.parent.children.indexOf(item),1);
+                    
+                    // [ remove all the elements from the DOM ]
+                    $("tree-item[path='" + item.path + "']").remove();
                 }}
             }
         });  
@@ -174,19 +191,20 @@ app.controller('MainController', function($scope, $compile) {
         })
     })();
     
-    function findItemByPath(branch,path){
+    function findItemByPath(folder,path){
         var children = [];
-        if($.isArray(branch)){
-            children = branch;
+        if($.isArray(folder)){
+            children = folder;
         }else{
-            children = branch.children;
+            children = folder.children;
         }
         
         for(var i = 0; i < children.length; i++){
             var item = {};
             if(path == children[i].path){
                 item = children[i];
-
+                
+                item.parent = folder;
                 return item;
             }
 
@@ -206,7 +224,12 @@ app.controller('MainController', function($scope, $compile) {
                 attrs[newKey] = attrs[key];
                 delete attrs[key];                
             }
+            
+            if($.isArray(attrs[newKey]) || $.isPlainObject(attrs[newKey])){
+                delete attrs[newKey];
+            }
         }
+        
         return attrs;
     }
     
