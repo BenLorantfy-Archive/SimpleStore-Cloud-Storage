@@ -44,6 +44,12 @@ var errors = {
     ,MISSING_TOKEN:11
     ,BAD_DIR_PATH:12
     ,REQUEST_FAILED:13
+    ,USER_ALREADY_EXISTS:14
+}
+
+// [ MySQL errors ]
+var mysqlErrors = {
+    DUPLICATE_KEY:1062
 }
 
 var base = path.join(path.dirname(require.main.filename),'UploadedFiles');
@@ -351,8 +357,19 @@ app.post("/token",function(req,res){
                 ,dateCreated:(new Date()).toISOString()
             })
             .then(function(){
+                // [ Create User Directory ]
+                generateUserPath(data.username);
+            
                 // [ Now authenticate after user has been created ]
                 authenticate();
+            })
+            .catch(function(err){
+                if(err.errno == mysqlErrors.DUPLICATE_KEY){
+                    res.end(error("User already exists", errors.USER_ALREADY_EXISTS));
+                }else{
+                    console.log(err);
+                    res.end(error("Database error"));
+                }
             });
         
     }else{

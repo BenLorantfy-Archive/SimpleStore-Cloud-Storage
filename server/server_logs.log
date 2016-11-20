@@ -20,3 +20,25 @@
 {"user":"place current user here","level":"error","message":"Couldn't find user's storage directory","timestamp":"2016-11-20T06:24:40.747Z"}
 {"user":"place current user here","level":"error","message":"error","timestamp":"2016-11-20T06:25:20.728Z"}
 {"user":"place current user here","level":"error","message":"Missing token from request","timestamp":"2016-11-20T06:25:59.454Z"}
+{"user":"place current user here","level":"error","message":"Missing username","timestamp":"2016-11-20T06:41:43.313Z"}
+{"user":"place current user here","level":"error","message":"Missing username","timestamp":"2016-11-20T17:05:39.012Z"}
+{"user":"place current user here","level":"error","message":"Missing username","timestamp":"2016-11-20T17:27:44.807Z"}
+{"user":"place current user here","level":"error","message":"Missing username","timestamp":"2016-11-20T17:45:04.588Z"}
+{"user":"place current user here","level":"error","message":"Missing confirmation password","timestamp":"2016-11-20T17:45:16.293Z"}
+{"user":"place current user here","level":"error","message":"Passwords don't match","timestamp":"2016-11-20T17:48:15.974Z"}
+{"user":"place current user here","level":"error","message":"Couldn't find user's storage directory","timestamp":"2016-11-20T17:48:22.195Z"}
+{"user":"place current user here","level":"error","message":"User already exists","timestamp":"2016-11-20T18:11:35.048Z"}
+{"user":"place current user here","level":"error","message":"User already exists","timestamp":"2016-11-20T18:12:45.727Z"}
+{"user":"place current user here","level":"error","message":"User already exists","timestamp":"2016-11-20T18:13:02.163Z"}
+{"user":"place current user here","level":"error","message":"Database error","timestamp":"2016-11-20T18:17:11.731Z"}
+{"user":"place current user here","level":"error","message":"User already exists","timestamp":"2016-11-20T18:17:25.982Z"}
+{"user":"place current user here","level":"error","message":"Missing username","timestamp":"2016-11-20T18:18:00.999Z"}
+{"user":"place current user here","level":"error","message":"Missing password","timestamp":"2016-11-20T18:18:56.058Z"}
+{"user":"place current user here","level":"error","message":"User already exists","timestamp":"2016-11-20T18:19:43.413Z"}
+{"user":"place current user here","level":"error","message":"Couldn't find user's storage directory","timestamp":"2016-11-20T18:19:47.236Z"}
+{"user":"place current user here","level":"error","message":"Missing username","timestamp":"2016-11-20T18:23:18.258Z"}
+{"user":"place current user here","level":"error","message":"User already exists","timestamp":"2016-11-20T18:23:43.492Z"}
+{"user":"place current user here","level":"error","message":"Couldn't find user's storage directory","timestamp":"2016-11-20T18:23:46.839Z"}
+{"user":"place current user here","level":"error","message":"Database error","timestamp":"2016-11-20T18:45:36.720Z"}
+{"user":"place current user here","level":"error","message":"User already exists","timestamp":"2016-11-20T18:53:01.852Z"}
+{"user":"place current user here","level":"error","message":"Database error","timestamp":"2016-11-20T18:53:05.898Z"}

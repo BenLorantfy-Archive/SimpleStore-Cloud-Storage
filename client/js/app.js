@@ -475,40 +475,68 @@ app.controller('MainController', function($scope, $compile) {
             $.request("POST","/token",credentials).done(function(data){
                 $.request.token = data.token;
                 
-                var w = $(window).width();
-                var h = $(window).height();
-
-                $("#loginScreen").fadeToggle("fast",function(){
-                    $("#filesScreen").fadeToggle("fast");
-                    renderFilesScreen();
-                });
-
-                var currentCenterX = window.screenX + $(window).width() / 2;
-                var currentCenterY = window.screenY + $(window).height() / 2;
-                var lastWidth = w;
-                var lastHeight = h;
-                $({ t:0 }).animate({ t: 1},{
-                     duration:300
-                    ,step:function(t){
-                        var newWidth = w + t*(950 - w);
-                        var newHeight = h + t*(650 - h);
-                        var deltaWidth = newWidth - lastWidth;
-                        var deltaHeight = newHeight - lastHeight;
-
-                        // This is pretty laggy:
-    //                    window.moveTo(window.screenX - deltaWidth/2, window.screenY - deltaHeight/2);
-                        window.resizeTo(newWidth, newHeight);
-
-                        lastWidth = newWidth;
-                        lastHeight = newHeight;
-                    }
-                })                
+                expandWindow();
             }).fail(function(data){
                 alert(data.message);
             })
             
 
         });       
+    
+        // [ Toggle Signup UI ]
+        $("#openSignUp,#openLogIn").click(function(){
+            $("#signupUI").toggle();
+            $("#login").toggle();
+            $("#signUpMessage").toggle();
+            $(".extraFieldContainer").slideToggle("fast");
+        });
+        
+        $("#signup").click(function(){
+            var credentials = {};
+            credentials.username = $("#username").val();
+            credentials.password = $("#password").val();
+            credentials.confirmPassword = $("#confirmPassword").val();
+            credentials.signup = true;
+            
+            $.request("POST","/token",credentials).done(function(data){
+                $.request.token = data.token;
+                
+                expandWindow();
+            }).fail(function(data){
+                alert(data.message);
+            })           
+        })
+        
+        function expandWindow(){
+            var w = $(window).width();
+            var h = $(window).height();
+
+            $("#loginScreen").fadeToggle("fast",function(){
+                $("#filesScreen").fadeToggle("fast");
+                renderFilesScreen();
+            });
+
+            var currentCenterX = window.screenX + $(window).width() / 2;
+            var currentCenterY = window.screenY + $(window).height() / 2;
+            var lastWidth = w;
+            var lastHeight = h;
+            $({ t:0 }).animate({ t: 1},{
+                 duration:300
+                ,step:function(t){
+                    var newWidth = w + t*(950 - w);
+                    var newHeight = h + t*(650 - h);
+                    var deltaWidth = newWidth - lastWidth;
+                    var deltaHeight = newHeight - lastHeight;
+
+                    // This is pretty laggy:
+    //                    window.moveTo(window.screenX - deltaWidth/2, window.screenY - deltaHeight/2);
+                    window.resizeTo(newWidth, newHeight);
+
+                    lastWidth = newWidth;
+                    lastHeight = newHeight;
+                }
+            })           
+        }
     })();
  
 });

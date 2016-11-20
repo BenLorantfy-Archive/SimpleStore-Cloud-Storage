@@ -76,7 +76,7 @@ input[type="button"],button{
     cursor: pointer;
 }
 
-#signUpMessage{
+#signUpMessage,#logInMessage{
     width:100%;
     text-align: center;
     margin-top:20px;
@@ -84,8 +84,9 @@ input[type="button"],button{
     font-size:14px;
 }
 
-#signUp{
+#openSignUp,#openLogIn{
     color:#2891FF;
+    cursor: pointer;
 }
 
 #fileColumnHolder{
@@ -202,4 +203,12 @@ input[type="button"],button{
 
 .selectedFileName{
     vertical-align: middle;
+}
+
+#signupUI{
+    display: none;
+}
+
+.extraFieldContainer{
+    display: none;
 }
