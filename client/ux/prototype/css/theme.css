@@ -14,6 +14,18 @@ html,body{
     font-weight: 100;
 }
 
+::-webkit-input-placeholder{
+    font-weight: 100;
+}
+
+h2{
+    padding:0;
+    margin:0;
+    font-size:16px;
+    color:white;
+    font-weight: 100;
+}
+
 *{
     box-sizing: border-box;
 }
@@ -85,6 +97,14 @@ input[type="button"],button{
     width:100%;
 }
 
+#fileColumnHolder::after{
+    content:"";
+    width: 200px;
+    height: 100%;
+    display: inline-block;
+    vertical-align: top;
+}
+
 .fileColumnHolder{
     height: 100%;
     display: inline-block;
@@ -111,4 +131,75 @@ input[type="button"],button{
 
 .hide{
     display: none;
+}
+
+.destructive, input[type="button"].destructive{
+    background-color:red;
+}
+
+#tools{
+    width:200px;
+    position: absolute;
+    top:0;
+    right:0;
+    height: 100%;
+    background-color:rgba(40,145,255,0.4);
+    border-left:1px solid rgba(40,145,255,0.6);
+    text-align: center;
+}
+
+#selectionTools{
+    width:100%;
+    border-bottom:1px solid rgba(40,145,255,0.6);
+    padding-bottom:20px;
+    display: none;
+    padding-top:10px;
+}
+
+/*
+#universalTools{
+    width:100%;
+    padding-bottom:20px;
+    padding-top:10px;    
+}
+*/
+
+#selectionTools [type="button"]{
+    font-size:13px;
+    padding:4px;
+    min-width: 80px;
+    display: inline-block;
+    margin-top:10px;
+    border-radius: 15px;
+}
+
+#selectedFilesHolder{
+    margin-top:10px;
+}
+
+.selectedFile{
+    padding:5px;
+    background-color:rgba(255,255,255,0.5);
+    border-radius: 10px;
+    font-size:15px;
+    color:grey;
+    text-align: left;
+    width:85%;
+    display: block;
+    margin-left:auto;
+    margin-right: auto;
+/*    border:1px solid rgba(0,0,0,0.2);*/
+    margin-top:5px;
+    padding-left:10px;
+}
+
+.selectedFile .folder{
+    width:18px;
+    vertical-align: middle;
+    margin-right:5px;
+/*    margin-top:-1px;*/
+}
+
+.selectedFileName{
+    vertical-align: middle;
 }
