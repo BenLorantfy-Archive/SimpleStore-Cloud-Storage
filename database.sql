@@ -20,6 +20,11 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
+DROP DATABASE IF EXISTS `simplestore`;
+CREATE DATABASE `simplestore`;
+
+USE `simplestore`;
+
 # Dump of table File
 # ------------------------------------------------------------
 
