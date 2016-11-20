@@ -472,7 +472,9 @@ app.controller('MainController', function($scope, $compile) {
             credentials.username = $("#username").val();
             credentials.password = $("#password").val();
             
-            $.request("POST","/token",credentials).done(function(){
+            $.request("POST","/token",credentials).done(function(data){
+                $.request.token = data.token;
+                
                 var w = $(window).width();
                 var h = $(window).height();
 

@@ -40,6 +40,8 @@ var errors = {
     ,NO_USER:7
     ,BAD_PASSWORD:8
     ,PASSWORDS_NOT_MATCHING:9
+    ,MISSING_DIR:10
+    ,MISSING_TOKEN:11
 }
 
 var base = path.join(path.dirname(require.main.filename),'UploadedFiles');
@@ -73,6 +75,139 @@ app.use (function(req, res, next) {
             }            
         }        
     });
+});
+
+// [ Middleware to try to detect hacking attempts ]
+app.use (function(req, res, next) {
+    
+    // [ If not requesting token, make sure token isn't empty ]
+    if(req.path != "/token" && req.path != "/token/"){
+        var token = req.headers["x-token"];
+        if(!token || token == ""){
+            logSecurityEvent("Empty token header"); 
+            next();
+            return;
+        }  
+    }
+    
+    // [ Passed all security checks, proceed ]
+    next();
+    return;
+
+    function logSecurityEvent(reason){
+        var ip = req.connection.remoteAddress;
+        
+        var userAgent = req.headers['user-agent'];
+        var token = req.headers['x-token'];
+        var screenWidth = req.headers['x-screen-width'];
+        var screenHeight = req.headers['x-screen-height'];
+        var allHeaders = JSON.stringify(req.headers);
+        var date = (new Date()).toISOString();
+        var country = null;
+        var city = null;
+        var region = null;
+        
+        
+        // [ Makes a call to a free geoip service for location info ]
+        // - rate limited :(
+        // - database updated automatically :)
+
+        var options = {
+          host: 'freegeoip.net',
+          path: '/json/' + ip
+        };
+
+        callback = function(response) {
+            var json = '';
+            response.on('data', function (chunk) { json += chunk; });
+
+            response.on('end', function () {
+                try{
+                    var data = JSON.parse(json);
+                    if(data.country_name){
+                        country = data.country_name;
+                    }
+                    if(data.region_name){
+                        region = data.region_name;
+                    }
+                    if(data.city){
+                        city = data.city;
+                    }
+                    
+                    doTheInsert();
+                }catch(e){
+                    doTheInsert();
+                }
+            });
+        }
+        
+        try{
+            require('http').request(options, callback).end();
+        }catch(e){
+            doTheInsert();
+        }
+        
+        
+        function doTheInsert(){
+            db("SecurityLog")
+                .insert({
+                     "reason": reason
+                    ,"ip": ip
+                    ,"userAgent":userAgent
+                    ,"token":token
+                    ,"screenWidth":screenWidth
+                    ,"screenHeight":screenHeight
+                    ,"allHeaders":allHeaders
+                    ,"date":date
+                    ,"country":country
+                    ,"region":region
+                    ,"city":city
+                })
+                .then();              
+        }
+
+        
+        
+      
+    }
+});
+
+// [ Middleware to authenticate user ]
+app.use (function(req, res, next) {
+    if(req.path == "/token" || req.path == "/token/"){
+        // User doesn't need to be authenticated to ask for token, anyone is allowed to do that
+        
+        next();
+        return;
+    }
+    
+    // [ Make sure token is valid ]
+    var token = req.headers["x-token"];
+    if(!token || token == ""){
+        res.end(error("Missing token from request",errors.MISSING_TOKEN));
+        return;
+    }
+    
+    // [ Check db for token record that matches ]
+    db("Token")
+        .leftJoin("User","Token.userId","User.id")
+        .select("User.id","User.username")
+        .where("token",token)
+        .where("revoked",0)
+        .then(function(row){
+            if(row.length == 1){
+                req.user = {
+                     username:row[0].username
+                    ,id:row[0].id
+                }
+                
+                next();
+                return;
+            }
+        
+            res.end(error("No matching token in database"));
+        });
+    
 });
 
 // [ Utilities ]
@@ -227,7 +362,8 @@ app.post("/token",function(req,res){
 });
 
 app.get("/files",function(req,res){
-    var username = "ben";
+    var username = req.user.username;
+    
     var root = {
          "name":"root"
         ,"isFolder":true
@@ -285,13 +421,16 @@ app.get("/files",function(req,res){
                                     var newFolder = path.join(folder,file);
 
                                     getFiles(newFolder,childItem)
-                                        .done(function(){
+                                        .then(function(){
 
                                             numDone++;
                                             if(numDone == files.length){
                                                 fulfill();
                                             }
                                         })
+                                        .catch(function(err){
+                                            reject(err);
+                                        });
                                 }else{
                                     numDone++;
                                     if(numDone == files.length){
@@ -300,26 +439,32 @@ app.get("/files",function(req,res){
                                 }
 
 
-                            })                            
+                            }).catch(function(err){
+                                reject(err);
+                            })                      
                         })(childItem,file);
 
                     }
                 }else{
                     fulfill();
                 }
-            })           
+            }).catch(function(err){
+                reject(err); 
+            }); 
         });
 
-    })("/",root).done(function(){
+    })("/",root).then(function(){
         res.json(root);
-    })
+    }).catch(function(){
+        res.end(error("Couldn't find user's storage directory",errors.MISSING_DIR))
+    });
     
     
 });
 
 // [ creates a new directory under the current users base folder]
 app.post("/folders", function(req,res) {
-
+    
     //todo: get actual user form headers
     var username = 'kyle';
 
@@ -423,7 +568,6 @@ app.delete("/folders", function (req, res) {
         }
     });
 });
-
 
 // [ Listen for requests ]
 (function(port){

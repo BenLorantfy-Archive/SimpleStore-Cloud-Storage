@@ -20,8 +20,12 @@
 
 		// [ Add Token to request if it exists ]
 		if($.request.token){
-			xhr.setRequestHeader("X-Token", $.request.token);
+			xhr.setRequestHeader("x-token", $.request.token);
 		}
+        
+        // [ Add screen width & height to request for analytics ]
+        xhr.setRequestHeader("x-screen-width", $(window).width());
+        xhr.setRequestHeader("x-screen-height", $(window).height());
 
 		var handler = {
 			 doneCallback:function(){}
