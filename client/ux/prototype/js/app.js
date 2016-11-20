@@ -36,7 +36,10 @@ app.controller('MainController', function($scope, $compile) {
                     
                     // [ remove all the elements from the DOM ]
                     $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();
-                }}
+                }},
+                downloadItem: {name: "Download", callback: function(key, opt){ 
+                    
+                }},
             }
         });  
         
@@ -333,16 +336,16 @@ app.controller('MainController', function($scope, $compile) {
     }
     
     (function filesEvents(){
+        // [ Toggle tree branch ]
         $("#filesScreen").on("click","tree-item .arrow",function(e){
             var item = $(this).closest("tree-item");
             item.toggleClass("expanded");
             item.children(".itemContainer").children(".children").slideToggle("fast");
         });
         
+        // [ Close columns when empty column space is clicked ]
         $("#filesScreen").on("click",".fileColumnHolder",function(e){
-            console.log("HAIII");
             if($(e.target).closest("tree-item").length > 0) return;
-            console.log("HAI URSELF");
             var currCol = $(this);
             var colIndex = currCol.index();
             
@@ -356,9 +359,18 @@ app.controller('MainController', function($scope, $compile) {
                 $(this).remove();
             })
             currCol.find(".itemNameContainer").removeClass("selected");
+            
+            // [ Unselect working item ]
+            $(".workingItem").removeClass("workingItem").removeClass("secondary");
+            
+            // [ Hide selection specific tools to declutter workspace ]
+            $("#selectionTools").hide();
+            
         })
         
+        // [ Open new column when tree-item is clicked ]
         $("#filesScreen").on("click","tree-item .itemNameContainer",function(e){
+            // [ Don't expand if clicking arrow or textbox ]
             if($(e.target).closest(".arrow").length > 0) return;
             if($(e.target).closest(".newName").length > 0) return;
             
@@ -367,6 +379,33 @@ app.controller('MainController', function($scope, $compile) {
             var parent = $(this).closest(".fileColumnHolder");
             var colIndex = parent.index();
             var currCol = $(".fileColumnHolder").eq(colIndex);
+            
+            // [ Add text highlight ]
+            if(!e.shiftKey){
+                $(".workingItem").removeClass("workingItem").removeClass("secondary");
+            }
+            
+            $("tree-item[path='" + path.replace(/'/g,"\\'") + "']").addClass("workingItem").addClass("secondary");
+            $(this).closest("tree-item").removeClass("secondary");
+            
+            // [ Show selection specific tools ]
+            $("#selectionTools").show();
+            
+            // [ Update the selected files list ]
+            $("#selectedFilesHolder").empty();
+            $(".workingItem:not(.secondary)").each(function(){
+                var name = $(this).attr("name");
+                $("#selectedFilesHolder").append(
+                    "<div class='selectedFile'>" + 
+                        "<img class='folder' src='img/icons/folder.png'/>" + 
+                        "<span class='selectedFileName'>" + name + "</span>" +
+                    "</div>"
+                );
+            })
+            
+
+            // [ Don't try to open a file as if it's a folder ]
+            if($(this).closest("tree-item").attr("is-folder") == "false") return;
             
             // [ Create the new column and delete any extra ones ]
             currCol.nextAll().remove();
@@ -413,6 +452,8 @@ app.controller('MainController', function($scope, $compile) {
             // [ Highlight the selected folder ]
             currCol.find(".itemNameContainer").removeClass("selected");
             $(this).closest(".itemNameContainer").addClass("selected");
+            
+            
         })
     })();
 
@@ -428,11 +469,24 @@ app.controller('MainController', function($scope, $compile) {
                 renderFilesScreen();
             });
 
-
+            var currentCenterX = window.screenX + $(window).width() / 2;
+            var currentCenterY = window.screenY + $(window).height() / 2;
+            var lastWidth = w;
+            var lastHeight = h;
             $({ t:0 }).animate({ t: 1},{
                  duration:300
                 ,step:function(t){
-                    window.resizeTo(w + t*(800 - w), h + t*(600 - h));
+                    var newWidth = w + t*(950 - w);
+                    var newHeight = h + t*(650 - h);
+                    var deltaWidth = newWidth - lastWidth;
+                    var deltaHeight = newHeight - lastHeight;
+                    
+                    // This is pretty laggy:
+//                    window.moveTo(window.screenX - deltaWidth/2, window.screenY - deltaHeight/2);
+                    window.resizeTo(newWidth, newHeight);
+                    
+                    lastWidth = newWidth;
+                    lastHeight = newHeight;
                 }
             })
         });       
