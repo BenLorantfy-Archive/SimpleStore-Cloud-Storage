@@ -42,7 +42,9 @@ var errors = {
     ,PASSWORDS_NOT_MATCHING:9
     ,MISSING_DIR:10
     ,MISSING_TOKEN:11
-    ,USER_ALREADY_EXISTS:12
+    ,BAD_DIR_PATH:12
+    ,REQUEST_FAILED:13
+    ,USER_ALREADY_EXISTS:14
 }
 
 // [ MySQL errors ]
@@ -206,7 +208,7 @@ app.use (function(req, res, next) {
                      username:row[0].username
                     ,id:row[0].id
                 }
-                
+                winston.log('info', req.method + " " + req.url, {"user" :  req.user.username});
                 next();
                 return;
             }
@@ -221,7 +223,7 @@ function error(message,code){
     if(!code){
         var code = 0;
     }
-    winston.log('error', message, { "user": "place current user here"});
+   winston.log('error', message);
 
     return JSON.stringify({
         message:message,
@@ -234,7 +236,7 @@ function success(message,code){
     if(!code){
         var code = 0;
     }
-    winston.log('info', message, { "user": "place current user here"});
+    winston.log('info', message);
 
     return JSON.stringify({
         message:message,
@@ -479,46 +481,55 @@ app.get("/files",function(req,res){
     
 });
 
-// [ creates a new directory under the current users base folder]
-app.post("/folders", function(req,res) {
-    
-    //todo: get actual user form headers
-    var username = 'kyle';
+app.put("/rename", function (req, res) {
+
+    var username = req.user.username;
 
     //check if body exists
     if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
     var data = req.body;
 
     //check if path key exists
-    if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
+    if(!data.path || !data.newname) return res.end(error("Missing path", errors.MISSING_FIELD));
 
-    //validate path
+    //validate the requested path
     var new_path = path.normalize(data.path);
-    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.MISSING_FIELD));
+    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
 
     //generate full path
-    var full_path =  path.join(generateUserPath(username),new_path);
+    var full_path = path.join(generateUserPath(username), new_path);
     path.normalize(full_path);
 
-    //check if parent directory exists
-    if(!fs.existsSync(path.dirname(full_path)))         return res.end(error("Parent Directory does not exist"));
+    //generate path with rename
+    path.normalize(data.newname);
+    var new_full_path = path.join(path.dirname(full_path), data.newname );
 
-    //create new dir
-    fs.mkdir(full_path, function (data) {
-        if(!data) {
-            return res.end(success("Directory Created"));
+    //make sure parent paths are identical
+    if(path.dirname(full_path) != path.dirname(new_full_path)) return res.end(error("renamed path does not match old path", errors.BAD_DIR_PATH));
+
+    fs.rename(full_path, new_full_path ,function (err) {
+        if(err){
+            res.end(error(err.message, errors.REQUEST_FAILED));
         } else {
-            return res.end(error(data.message));
+            fs.stat(new_full_path, function(err, stats){
+                if(err){
+                    res.end(error(err.message));
+                } else {
+                    if (stats.isFile()) {
+                        res.end(success("File Renamed"));
+                    } else {
+                        res.end(success("Folder Renamed"));
+                    }
+                }
+            });
         }
     });
 
-});
+})
 
-// [ remove a directory under the current users base folder]
-app.delete("/folders", function (req, res) {
+app.delete("/files", function(req,res){
 
-    //todo: get actual user form headers
-    var username = 'kyle';
+    var username = req.user.username;
 
     //check if body exists
     if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
@@ -529,14 +540,81 @@ app.delete("/folders", function (req, res) {
 
     //validate the requested path
     var new_path = path.normalize(data.path);
-    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.MISSING_FIELD));
+    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
+
+    //generate full path
+    var full_path = path.join(generateUserPath(username), new_path);
+    path.normalize(full_path);
+
+    fs.unlink(full_path, function (err) {
+       if(err){
+           res.end(error(err.message, errors.REQUEST_FAILED));
+       } else {
+           res.end(success("File Removed"));
+       }
+    });
+
+
+
+})
+
+// [ creates a new directory under the current users base folder]
+app.post("/folders", function(req,res) {
+    
+    //todo: get actual user form headers
+    var username = req.user.username;
+
+    //check if body exists
+    if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
+    var data = req.body;
+
+    //check if path key exists
+    if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
+
+    //validate path
+    var new_path = path.normalize(data.path);
+    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
+
+    //generate full path
+    var full_path =  path.join(generateUserPath(username),new_path);
+    path.normalize(full_path);
+
+    //check if parent directory exists
+    if(!fs.existsSync(path.dirname(full_path)))         return res.end(error("Parent Directory does not exist", errors.BAD_DIR_PATH));
+
+    //create new dir
+    fs.mkdir(full_path, function (data) {
+        if(!data) {
+            return res.end(success("Directory Created"));
+        } else {
+            return res.end(error(data.message, errors.REQUEST_FAILED));
+        }
+    });
+
+});
+
+// [ remove a directory under the current users base folder]
+app.delete("/folders", function (req, res) {
+
+    var username = req.user.username;
+
+    //check if body exists
+    if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
+    var data = req.body;
+
+    //check if path key exists
+    if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
+
+    //validate the requested path
+    var new_path = path.normalize(data.path);
+    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
 
     //generate full path
     var full_path = path.join(generateUserPath(username), new_path);
     path.normalize(full_path);
 
     //check if parent directory exists
-    if(!fs.existsSync(path.dirname(full_path)))         return res.end(error("Parent Directory does not exist"));
+    if(!fs.existsSync(path.dirname(full_path))) return res.end(error("Parent Directory does not exist", errors.BAD_DIR_PATH));
 
     // [ Recursive function to delete folder and all child folders/files ]
     (function removeFiles(dirPath, callback) {
@@ -579,7 +657,7 @@ app.delete("/folders", function (req, res) {
         });
     })(full_path, function(err){
         if (err){
-            res.end(error(err.message));
+            res.end(error(err.message, errors.REQUEST_FAILED));
         } else {
             res.end(success("Directory Deleted"));
         }
