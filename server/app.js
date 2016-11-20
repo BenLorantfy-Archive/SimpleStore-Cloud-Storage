@@ -115,7 +115,9 @@ function generateGUID(){
 
 function isPathValid(filepath){
 
-    if(filepath.includes('..') || filepath.includes('.')) {
+    var parsedPath = path.parse(filepath);
+
+    if(parsedPath.dir.includes('..') || parsedPath.dir.includes('.') || parsedPath.dir == "\\") {
         return false;
     }
 
@@ -332,11 +334,8 @@ app.post("/folders", function(req,res) {
     var new_path = path.normalize(data.path);
     if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.MISSING_FIELD));
 
-    //generate user path
-    var user_path = generateUserPath(username);
-
     //generate full path
-    var full_path =  path.join(user_path,new_path);
+    var full_path =  path.join(generateUserPath(username),new_path);
     path.normalize(full_path);
 
     //check if parent directory exists
@@ -366,15 +365,12 @@ app.delete("/folders", function (req, res) {
     //check if path key exists
     if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
 
-    //validate path
+    //validate the requested path
     var new_path = path.normalize(data.path);
     if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.MISSING_FIELD));
 
-    //generate user path
-    var user_path = generateUserPath(username);
-
     //generate full path
-    var full_path =  path.join(user_path,new_path);
+    var full_path = path.join(generateUserPath(username), new_path);
     path.normalize(full_path);
 
     //check if parent directory exists
