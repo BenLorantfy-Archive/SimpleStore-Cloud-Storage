@@ -85,7 +85,7 @@ app.controller('MainController', function($scope, $compile) {
                 }},
                 newFolder: {name: "New Folder", callback: function(key, opt){ 
                     var col = $(this);
-                    var colIndex = col.index();
+                    var colIndex = col.closest(".fileColumnHolder").index();
                     var folder = columnStack[colIndex];
 
                     var item = {
@@ -164,16 +164,29 @@ app.controller('MainController', function($scope, $compile) {
                 // [ Get File Info ]
                 var folder = columnStack[colIndex];
                 var item = findItemByPath(columnStack[colIndex],path,true);
+                var parent = item.parent;
                 
                 // [ Change file info ]
                 item.name = newName;
                 
                 // [ Change the path ]
-                if(folder.path == "/"){
+                if(parent.path == "/"){
                     item.path = "/" + newName;
                 }else{
-                    item.path = folder.path + "/" + newName;
+                    item.path = parent.path + "/" + newName;
                 }            
+                
+                if(item.new && item.isFolder){
+                    var data = {
+                        path:item.path
+                    };
+                    
+                    $.request("POST","/folders",data).done(function(){
+                        
+                    }).fail(function(){
+                        alert("Folder creation failed");
+                    });
+                }
                 
                 // [ Not new anymore ]
                 delete item.new;
@@ -258,7 +271,8 @@ app.controller('MainController', function($scope, $compile) {
     }
     
     // Stack of column data from right to left
-    var columnStack = [];
+//    var columnStack = [];
+    window.columnStack = [];
     
     function renderFilesScreen(){
         
