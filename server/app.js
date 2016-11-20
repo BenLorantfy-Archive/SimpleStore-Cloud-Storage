@@ -662,7 +662,7 @@ app.put("/rename", function (req, res) {
             });
         }
     });
-})
+});
 
 app.get("/download", function (req, res) {
 
@@ -683,11 +683,11 @@ app.get("/download", function (req, res) {
     var full_path = path.join(generateUserPath(username), 'test.txt');
     path.normalize(full_path);
 
-    res.download(full_path);
+   res.download(full_path);
 
 
 
-})
+});
 
 // [ Listen for requests ]
 (function(port){
