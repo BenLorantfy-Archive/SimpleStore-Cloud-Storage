@@ -123,6 +123,24 @@ function isPathValid(filepath){
     return true;
 }
 
+function generateUserPath(username){
+
+    //if UploadedFiles folder doesnt exist, create it..
+    if(!fs.existsSync(base)) {
+        fs.mkdirSync(base);
+    }
+
+    //generate user path
+    var user_path =  path.join(base,username);
+
+    //if user folder doesnt exist, create it..
+    if(!fs.existsSync(user_path)) {
+        fs.mkdirSync(user_path);
+    }
+
+    return user_path;
+}
+
 // [ Allows cross origin requests ]
 // https://www.html5rocks.com/en/tutorials/cors/
 //app.use(cors());
@@ -297,8 +315,6 @@ app.get("/files",function(req,res){
     
 });
 
-
-
 // [ creates a new directory under the current users base folder]
 app.post("/folders", function(req,res) {
 
@@ -316,19 +332,8 @@ app.post("/folders", function(req,res) {
     var new_path = path.normalize(data.path);
     if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.MISSING_FIELD));
 
-    //if UploadedFiles folder doesnt exist, create it..
-    if(!fs.existsSync(base)) {
-        fs.mkdirSync(base);
-    }
-
     //generate user path
-    var user_path =  path.join(base,username);
-
-
-    //if user folder doesnt exist, create it..
-    if(!fs.existsSync(user_path)) {
-        fs.mkdirSync(user_path);
-    }
+    var user_path = generateUserPath(username);
 
     //generate full path
     var full_path =  path.join(user_path,new_path);
@@ -346,6 +351,81 @@ app.post("/folders", function(req,res) {
         }
     });
 
+});
+
+// [ remove a directory under the current users base folder]
+app.delete("/folders", function (req, res) {
+
+    //todo: get actual user form headers
+    var username = 'kyle';
+
+    //check if body exists
+    if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
+    var data = req.body;
+
+    //check if path key exists
+    if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
+
+    //validate path
+    var new_path = path.normalize(data.path);
+    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.MISSING_FIELD));
+
+    //generate user path
+    var user_path = generateUserPath(username);
+
+    //generate full path
+    var full_path =  path.join(user_path,new_path);
+    path.normalize(full_path);
+
+    //check if parent directory exists
+    if(!fs.existsSync(path.dirname(full_path)))         return res.end(error("Parent Directory does not exist"));
+
+    // [ Recursive function to delete folder and all child folders/files ]
+    (function removeFiles(dirPath, callback) {
+        fs.readdir(dirPath, function(err, files) {
+            if(err) {
+                // Pass the error on to callback
+                callback(err, []);
+                return;
+            }
+            var wait = files.length,
+                count = 0,
+                folderDone = function(err) {
+                    count++;
+                    // If we cleaned out all the files, continue
+                    if( count >= wait || err) {
+                        fs.rmdir(dirPath,callback);
+                    }
+                };
+            // Empty directory to bail early
+            if(!wait) {
+                folderDone();
+                return;
+            }
+
+            dirPath = path.normalize(dirPath);
+            files.forEach(function(file) {
+                var curPath = path.join(dirPath,file);
+                fs.lstat(curPath, function(err, stats) {
+                    if( err ) {
+                        callback(err, []);
+                        return;
+                    }
+                    if( stats.isDirectory() ) {
+                        removeFiles(curPath, folderDone);
+                    } else {
+                        fs.unlink(curPath, folderDone);
+                    }
+                });
+            });
+        });
+    })(full_path, function(err){
+        if (err){
+            res.end(error(err.message));
+        } else {
+            res.end(success("Directory Deleted"));
+        }
+    });
 });
 
 
