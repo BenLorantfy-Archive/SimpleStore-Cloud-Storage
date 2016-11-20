@@ -13,18 +13,18 @@ When tests are run and results are added to this document, please ensure to do t
 Because this file is tracked by .git, the change history can also act as a record of test history which is handy. You can view the test history by going to [this link](https://github.com/BenLorantfy/SOA-A5/commits/master/tests.md)
 
 ## TEST DECK #1
-| Test Name                | N-001 &#x2717;                                                                                    | 
+| Test Name                | N-001 &#10004;                                                                                    | 
 |--------------------------|---------------------------------------------------------------------------------------------------| 
 | Test Description         | Try to log in as an existing user                                                                 | 
 | Test Procedure           | **1.** Login as user Sean **2.** Record your Actual Results to indicate whether a Sean directory exists in HOST | 
 | Expected Results         | Client should not create remote Sean directory, but allow login                                   | 
-| Last Tested Date         | Nov 18th 2016                                                                                                  | 
+| Last Tested Date         | Nov 20th 2016                                                                                                  | 
 | Last Tested Version      | 0.0.0                                                                                                   | 
-| Last Tested Commit       | N/A                                                                                                   | 
+| Last Tested Commit       | 12372ca                                                                                                  | 
 | Last Tested By           | [BenLorantfy](https://github.com/BenLorantfy)                                                                                                   | 
 | Actual Results (Unit)    |                                                                                                   | 
-| Actual Results (Mannual) |                                                                                                   | 
-| Extra Notes              |                                                                                                   | 
+| Actual Results (Mannual) | Client does not create a Sean directory because it already exists, but Sean is stil able to login                                                                                                | 
+| Extra Notes              | Unit test hasn't been created yet but able to test manually                                                                                                  | 
 
 | Test Name                | E-001 &#x2717;                                                                                                                                                                                                      | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
