@@ -15,7 +15,7 @@ var Promise = require('promise');           // Promises
     
 // [ Config file with db credentials ]
 var config  = require("./config.json");     // Config file with database username and password
-var database_manager = require("./database_manager");
+//var database_manager = require("./database_manager");
 
 // [ Start server ]
 console.log("Starting server...");
@@ -429,6 +429,6 @@ app.delete("/folders", function (req, res) {
 (function(port){
     app.listen(port, function () {
         console.log('Web server listening on port ' + port + '...');
-        database_manager.test();
+//        database_manager.test();
     });    
 })(1337);

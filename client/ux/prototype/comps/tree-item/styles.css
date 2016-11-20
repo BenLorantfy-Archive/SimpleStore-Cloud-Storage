@@ -34,6 +34,12 @@ tree-item .folder{
     margin-top:-2px;
 }
 
+tree-item .fileIcon{
+    vertical-align: middle;
+    width:13px;
+    margin-top:-2px;    
+}
+
 tree-item .arrow{
     vertical-align: middle;
     width:9px;

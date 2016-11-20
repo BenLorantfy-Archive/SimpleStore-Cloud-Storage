@@ -1,5 +1,6 @@
 // Author: Ben Lorantfy
 // Desc: A helper plugin that simplifies jquery syntax for creating REST ajax requests
+// Version: 2.0
 
 (function($,window,document){
 	$.request = function(verb,path,data){
@@ -39,7 +40,13 @@
 			// debugger;
 			try{
 				var json = event.currentTarget.responseText;
-				handler.doneCallback(JSON.parse(json));
+                var data = JSON.parse(json);
+                if(data.error){
+                    handler.failCallback(data);
+                }else{
+                    handler.doneCallback(data);
+                }
+				
 			}catch(ex){
 				handler.failCallback(event);
 			}

@@ -1,9 +1,12 @@
 // Author:
 // Desc: This file contains the main UI manipulation logic
 
+// Set the $.request host
+$.request.host = "http://localhost:1337";
+    
 var app = angular.module('app', []);
-
 app.controller('MainController', function($scope, $compile) {
+    
     (function contextMenuEvents(){
         $.contextMenu({
             // define which elements trigger this menu
@@ -260,77 +263,81 @@ app.controller('MainController', function($scope, $compile) {
     function renderFilesScreen(){
         
         // [ Sample File Tree ]
-        // - This is an example response we would get back from GET /files
-        var root = {
-             isFolder:true
-            ,isFile:false
-            ,name:""
-            ,path:"/"
-            ,children:[
-                {
-                     isFolder:true
-                    ,isFile:false
-                    ,name:"Work"
-                    ,path:"/Work"
-                    ,children:[
-                        {
-                             isFolder:false
-                            ,isFile:true
-                            ,name:"myfile.txt"
-                            ,path:"/Work/myfile.txt"
-                            ,children:[]
-                        },
-                        {
-                             isFolder:true
-                            ,isFile:false
-                            ,name:"Q1"
-                            ,path:"/Work/Q1"
-                            ,children:[
-                                {
-                                     isFolder:false
-                                    ,isFile:true
-                                    ,name:"myspreadsheet.xls"
-                                    ,path:"/Work/Q1/myspreadsheet.xls"
-                                    ,children:[]
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                     isFolder:true
-                    ,isFile:false
-                    ,name:"School"
-                    ,path:"/School"
-                    ,children:[]
-
-                },
-                {
-                     isFolder:true
-                    ,isFile:false
-                    ,name:"Taxes"
-                    ,path:"/Taxes"
-                    ,children:[]
-                }
-            ]
-        };
         
-        var colHolder = $("<div class='fileColumnHolder'></div>");
-        var newCol = $("<div class='fileColumn'></div>");
-        colHolder.append(newCol);
-        $("#fileColumnHolder").append(colHolder);
-        newCol.append("<div class='fileColumnHeader'>/</div>");
+        $.request("GET","/files").done(function(root){
+            var colHolder = $("<div class='fileColumnHolder'></div>");
+            var newCol = $("<div class='fileColumn'></div>");
+            colHolder.append(newCol);
+            $("#fileColumnHolder").append(colHolder);
+            newCol.append("<div class='fileColumnHeader'>/</div>");
 
-        columnStack.push(root);
-        $.each(root.children, function(i,item){
-            // [ Create and append all the branches ]
-            var el = createTreeItem(item,newCol);
-            
-            // [ Compile all the branches ]
-            $compile(el)($scope);
-                 
+            columnStack.push(root);
+            $.each(root.children, function(i,item){
+                // [ Create and append all the branches ]
+                var el = createTreeItem(item,newCol);
+
+                // [ Compile all the branches ]
+                $compile(el)($scope);
+
+            });
         });
         
+        // - This is an example response we would get back from GET /files
+//        var root = {
+//             isFolder:true
+//            ,isFile:false
+//            ,name:""
+//            ,path:"/"
+//            ,children:[
+//                {
+//                     isFolder:true
+//                    ,isFile:false
+//                    ,name:"Work"
+//                    ,path:"/Work"
+//                    ,children:[
+//                        {
+//                             isFolder:false
+//                            ,isFile:true
+//                            ,name:"myfile.txt"
+//                            ,path:"/Work/myfile.txt"
+//                            ,children:[]
+//                        },
+//                        {
+//                             isFolder:true
+//                            ,isFile:false
+//                            ,name:"Q1"
+//                            ,path:"/Work/Q1"
+//                            ,children:[
+//                                {
+//                                     isFolder:false
+//                                    ,isFile:true
+//                                    ,name:"myspreadsheet.xls"
+//                                    ,path:"/Work/Q1/myspreadsheet.xls"
+//                                    ,children:[]
+//                                }
+//                            ]
+//                        }
+//                    ]
+//                },
+//                {
+//                     isFolder:true
+//                    ,isFile:false
+//                    ,name:"School"
+//                    ,path:"/School"
+//                    ,children:[]
+//
+//                },
+//                {
+//                     isFolder:true
+//                    ,isFile:false
+//                    ,name:"Taxes"
+//                    ,path:"/Taxes"
+//                    ,children:[]
+//                }
+//            ]
+//        };
+        
+
         
         
     }
@@ -461,34 +468,44 @@ app.controller('MainController', function($scope, $compile) {
         
         // [ Login user ]
         $("#login").click(function(){
-            var w = $(window).width();
-            var h = $(window).height();
+            var credentials = {};
+            credentials.username = $("#username").val();
+            credentials.password = $("#password").val();
+            
+            $.request("POST","/token",credentials).done(function(){
+                var w = $(window).width();
+                var h = $(window).height();
 
-            $("#loginScreen").fadeToggle("fast",function(){
-                $("#filesScreen").fadeToggle("fast");
-                renderFilesScreen();
-            });
+                $("#loginScreen").fadeToggle("fast",function(){
+                    $("#filesScreen").fadeToggle("fast");
+                    renderFilesScreen();
+                });
 
-            var currentCenterX = window.screenX + $(window).width() / 2;
-            var currentCenterY = window.screenY + $(window).height() / 2;
-            var lastWidth = w;
-            var lastHeight = h;
-            $({ t:0 }).animate({ t: 1},{
-                 duration:300
-                ,step:function(t){
-                    var newWidth = w + t*(950 - w);
-                    var newHeight = h + t*(650 - h);
-                    var deltaWidth = newWidth - lastWidth;
-                    var deltaHeight = newHeight - lastHeight;
-                    
-                    // This is pretty laggy:
-//                    window.moveTo(window.screenX - deltaWidth/2, window.screenY - deltaHeight/2);
-                    window.resizeTo(newWidth, newHeight);
-                    
-                    lastWidth = newWidth;
-                    lastHeight = newHeight;
-                }
+                var currentCenterX = window.screenX + $(window).width() / 2;
+                var currentCenterY = window.screenY + $(window).height() / 2;
+                var lastWidth = w;
+                var lastHeight = h;
+                $({ t:0 }).animate({ t: 1},{
+                     duration:300
+                    ,step:function(t){
+                        var newWidth = w + t*(950 - w);
+                        var newHeight = h + t*(650 - h);
+                        var deltaWidth = newWidth - lastWidth;
+                        var deltaHeight = newHeight - lastHeight;
+
+                        // This is pretty laggy:
+    //                    window.moveTo(window.screenX - deltaWidth/2, window.screenY - deltaHeight/2);
+                        window.resizeTo(newWidth, newHeight);
+
+                        lastWidth = newWidth;
+                        lastHeight = newHeight;
+                    }
+                })                
+            }).fail(function(data){
+                alert(data.message);
             })
+            
+
         });       
     })();
  
