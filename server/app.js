@@ -15,7 +15,7 @@ var Promise = require('promise');           // Promises
     
 // [ Config file with db credentials ]
 var config  = require("./config.json");     // Config file with database username and password
-//var database_manager = require("./database_manager");
+var database_manager = require("./database_manager");
 
 // [ Start server ]
 console.log("Starting server...");
@@ -481,52 +481,6 @@ app.get("/files",function(req,res){
     
 });
 
-app.put("/rename", function (req, res) {
-
-    var username = req.user.username;
-
-    //check if body exists
-    if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
-    var data = req.body;
-
-    //check if path key exists
-    if(!data.path || !data.newname) return res.end(error("Missing path", errors.MISSING_FIELD));
-
-    //validate the requested path
-    var new_path = path.normalize(data.path);
-    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
-
-    //generate full path
-    var full_path = path.join(generateUserPath(username), new_path);
-    path.normalize(full_path);
-
-    //generate path with rename
-    path.normalize(data.newname);
-    var new_full_path = path.join(path.dirname(full_path), data.newname );
-
-    //make sure parent paths are identical
-    if(path.dirname(full_path) != path.dirname(new_full_path)) return res.end(error("renamed path does not match old path", errors.BAD_DIR_PATH));
-
-    fs.rename(full_path, new_full_path ,function (err) {
-        if(err){
-            res.end(error(err.message, errors.REQUEST_FAILED));
-        } else {
-            fs.stat(new_full_path, function(err, stats){
-                if(err){
-                    res.end(error(err.message));
-                } else {
-                    if (stats.isFile()) {
-                        res.end(success("File Renamed"));
-                    } else {
-                        res.end(success("Folder Renamed"));
-                    }
-                }
-            });
-        }
-    });
-
-})
-
 app.delete("/files", function(req,res){
 
     var username = req.user.username;
@@ -664,10 +618,81 @@ app.delete("/folders", function (req, res) {
     });
 });
 
+// [ rename file or directory ]
+app.put("/rename", function (req, res) {
+
+    var username = req.user.username;
+
+    //check if body exists
+    if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
+    var data = req.body;
+
+    //check if path key exists
+    if(!data.path || !data.newname) return res.end(error("Missing path", errors.MISSING_FIELD));
+
+    //validate the requested path
+    var new_path = path.normalize(data.path);
+    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
+
+    //generate full path
+    var full_path = path.join(generateUserPath(username), new_path);
+    path.normalize(full_path);
+
+    //generate path with rename
+    path.normalize(data.newname);
+    var new_full_path = path.join(path.dirname(full_path), data.newname );
+
+    //make sure parent paths are identical
+    if(path.dirname(full_path) != path.dirname(new_full_path)) return res.end(error("renamed path does not match old path", errors.BAD_DIR_PATH));
+
+    fs.rename(full_path, new_full_path ,function (err) {
+        if(err){
+            res.end(error(err.message, errors.REQUEST_FAILED));
+        } else {
+            fs.stat(new_full_path, function(err, stats){
+                if(err){
+                    res.end(error(err.message));
+                } else {
+                    if (stats.isFile()) {
+                        res.end(success("File Renamed"));
+                    } else {
+                        res.end(success("Folder Renamed"));
+                    }
+                }
+            });
+        }
+    });
+})
+
+app.get("/download", function (req, res) {
+
+    var username = req.user.username;
+
+    // //check if body exists
+    // if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
+    // var data = req.body;
+    //
+    // //check if path field exists
+    // if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
+    //
+    // //validate the requested path
+    // var new_path = path.normalize(data.path);
+    // if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
+
+    //generate full path
+    var full_path = path.join(generateUserPath(username), 'test.txt');
+    path.normalize(full_path);
+
+    res.download(full_path);
+
+
+
+})
+
 // [ Listen for requests ]
 (function(port){
     app.listen(port, function () {
         console.log('Web server listening on port ' + port + '...');
-//        database_manager.test();
+        database_manager.test();
     });    
 })(1337);
