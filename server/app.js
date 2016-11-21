@@ -504,13 +504,23 @@ app.post("/upload", function(req,res){
     form.multiples = true;
     form.uploadDir = tempDir;
 
-    var fPath = req.headers["metadata"] + "";
+    var selectedPath = req.headers["metadata"] + "";
+    
+    // [ Keeps track of every file that was sucessfully uploaded ]
+    var uploadedFiles = [];
     
     // [ Rename uploaded file ]
     form.on('file', function(field, file) {
         var userPath = generateUserPath(req.user.username);    
-        var newPath = path.join(userPath, path.join(fPath, file.name));  
+        var newPath = path.join(userPath, path.join(selectedPath, file.name));  
         fs.rename(file.path, newPath);
+        
+        uploadedFiles.push({
+             name:file.name
+            ,path:path.join(selectedPath, file.name)
+            ,isFile:true
+            ,isFolder:false
+        })
     });
 
     form.on('error', function(err) {
@@ -519,7 +529,7 @@ app.post("/upload", function(req,res){
 
     form.on('end', function() {
         console.log('success');
-        res.end('success');
+        res.json(uploadedFiles);
     });
 
     form.parse(req);

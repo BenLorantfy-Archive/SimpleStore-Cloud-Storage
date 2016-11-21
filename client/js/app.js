@@ -94,14 +94,38 @@ app.controller('MainController', function($scope, $compile) {
                             console.log('Trying to upload:');
                             console.log(formData);
 
-                            $.request("POST","/upload", formData, folder.path).done(function(root){
+                            $.request("POST","/upload", formData, folder.path).done(function(files){
                                 console.log('Upload done');
                                 disableUpload = false;
-                                renderFilesScreen();
+                                
+                                // [ Add all the files ]
+                                for(var i = 0; i < files.length; i++){
+                                    folder.children.push(files[i]);
+                                    
+                                    
+                                    var el = $("<tree-item></tree-item>");
+                                    
+                                    var attrs = getAttrsFromData(files[i]);
+                                    el.attr(attrs);
+                                
+                                    // [ Append to all the other open folders ]
+                                    var folders = $("tree-item[path='" + folder.path.replace(/'/g,"\\'") + "']");
+                                    folders.each(function(){
+                                        var clone = el.clone();
+                                        $(this).append(clone);
+                                        
+                                        $compile(clone)($scope);
+                                    });
+                                    
+                                    // [ Append to column ]
+                                    col.append(el);
+                                    $compile(el)($scope);
+                                }
+
                             }).fail(function(root){
                                 console.log('Upload failed');
                                 disableUpload = false;
-                                renderFilesScreen();
+
                             });
                         }
                     })
