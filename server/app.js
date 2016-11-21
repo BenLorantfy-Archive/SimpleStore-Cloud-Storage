@@ -574,23 +574,126 @@ app.delete("/files", function(req,res){
     var data = req.body;
 
     //check if path key exists
-    if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
+    if(!data.paths) return res.end(error("Missing paths", errors.MISSING_FIELD));
+    if(data.paths.length > 0){
+        
+        var promises = null;
+        for(var i = 0; i < data.paths.length; i++){
+            //validate the requested path
+            var new_path = path.normalize(data.paths[i]);
+            if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
 
-    //validate the requested path
-    var new_path = path.normalize(data.path);
-    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
+            //generate full path
+            var full_path = path.join(generateUserPath(username), new_path);
+            path.normalize(full_path); 
 
-    //generate full path
-    var full_path = path.join(generateUserPath(username), new_path);
-    path.normalize(full_path);
+            console.log("PATH:", full_path);
+//            continue;
+            
+            if(promises){
+                console.log("ADDED PROMISE");
+                (function(full_path){
+                    promises.then(function(){
+                        return new Promise(function(fulfill, reject){
+                            deleteItem(full_path,fulfill, reject);
+                            // here
+                        })
+                    })                       
+                })(full_path);
+             
+            }else{
+                console.log("SET PROMISE");
+                
+                (function(full_path){            
+                    promises = new Promise(function(fulfill, reject){
+                        deleteItem(full_path,fulfill, reject);
+                    })                    
+                })(full_path);
 
-    fs.unlink(full_path, function (err) {
-       if(err){
-           res.end(error(err.message, errors.REQUEST_FAILED));
-       } else {
-           res.end(success("File Removed"));
-       }
-    });
+            }
+            
+            function deleteItem(full_path,fulfill, reject){
+                 fs.stat(full_path, function(err, stat) {
+                    if(err == null) {
+                        if(stat.isDirectory()){
+                            deleteFolder(full_path,function(err){
+                                if(err){
+                                    reject();
+                                }else{
+                                    fulfill();
+                                }
+                            })
+                        }else{
+                            fs.unlink(full_path, function (err) {
+                               if(err){
+                                   reject(err.message);
+                               } else {
+                                   fulfill();
+                               }
+                            });                                
+                        }
+  
+                    }
+                });                  
+            }
+
+        }
+        
+//        res.end("WOWWW");
+//        return;
+        
+        promises.then(function(){
+            res.json(success("files removed"));
+        }).catch(function(err){
+            console.log("delete failed: " + err);
+            res.end(error())
+        })
+
+
+
+  
+    }
+    
+    function deleteFolder(dirPath,callback){
+        fs.readdir(dirPath, function(err, files) {
+            if(err) {
+                // Pass the error on to callback
+                callback(err, []);
+                return;
+            }
+            var wait = files.length,
+                count = 0,
+                folderDone = function(err) {
+                    count++;
+                    // If we cleaned out all the files, continue
+                    if( count >= wait || err) {
+                        fs.rmdir(dirPath,callback);
+                    }
+                };
+            // Empty directory to bail early
+            if(!wait) {
+                folderDone();
+                return;
+            }
+
+            dirPath = path.normalize(dirPath);
+            files.forEach(function(file) {
+                var curPath = path.join(dirPath,file);
+                fs.lstat(curPath, function(err, stats) {
+                    if( err ) {
+                        callback(err, []);
+                        return;
+                    }
+                    if( stats.isDirectory() ) {
+                        deleteFolder(curPath, folderDone);
+                    } else {
+                        fs.unlink(curPath, folderDone);
+                    }
+                });
+            });
+        });
+    }
+
 });
 
 // [ creates a new directory under the current users base folder]
@@ -629,75 +732,76 @@ app.post("/folders", function(req,res) {
 });
 
 // [ remove a directory under the current users base folder]
-app.delete("/folders", function (req, res) {
+//app.delete("/folders", function (req, res) {
+//
+//    var username = req.user.username;
+//
+//    //check if body exists
+//    if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
+//    var data = req.body;
+//
+//    //check if path key exists
+//    if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
+//
+//    //validate the requested path
+//    var new_path = path.normalize(data.path);
+//    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
+//
+//    //generate full path
+//    var full_path = path.join(generateUserPath(username), new_path);
+//    path.normalize(full_path);
+//
+//    //check if parent directory exists
+//    if(!fs.existsSync(path.dirname(full_path))) return res.end(error("Parent Directory does not exist", errors.BAD_DIR_PATH));
+//
+//    // [ Recursive function to delete folder and all child folders/files ]
+//    (function removeFiles(dirPath, callback) {
+//        fs.readdir(dirPath, function(err, files) {
+//            if(err) {
+//                // Pass the error on to callback
+//                callback(err, []);
+//                return;
+//            }
+//            var wait = files.length,
+//                count = 0,
+//                folderDone = function(err) {
+//                    count++;
+//                    // If we cleaned out all the files, continue
+//                    if( count >= wait || err) {
+//                        fs.rmdir(dirPath,callback);
+//                    }
+//                };
+//            // Empty directory to bail early
+//            if(!wait) {
+//                folderDone();
+//                return;
+//            }
+//
+//            dirPath = path.normalize(dirPath);
+//            files.forEach(function(file) {
+//                var curPath = path.join(dirPath,file);
+//                fs.lstat(curPath, function(err, stats) {
+//                    if( err ) {
+//                        callback(err, []);
+//                        return;
+//                    }
+//                    if( stats.isDirectory() ) {
+//                        removeFiles(curPath, folderDone);
+//                    } else {
+//                        fs.unlink(curPath, folderDone);
+//                    }
+//                });
+//            });
+//        });
+//    })(full_path, function(err){
+//        if (err){
+//            res.end(error(err.message, errors.REQUEST_FAILED));
+//        } else {
+//            res.end(success("Directory Deleted"));
+//        }
+//    });
+//});
 
-    var username = req.user.username;
-
-    //check if body exists
-    if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
-    var data = req.body;
-
-    //check if path key exists
-    if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
-
-    //validate the requested path
-    var new_path = path.normalize(data.path);
-    if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
-
-    //generate full path
-    var full_path = path.join(generateUserPath(username), new_path);
-    path.normalize(full_path);
-
-    //check if parent directory exists
-    if(!fs.existsSync(path.dirname(full_path))) return res.end(error("Parent Directory does not exist", errors.BAD_DIR_PATH));
-
-    // [ Recursive function to delete folder and all child folders/files ]
-    (function removeFiles(dirPath, callback) {
-        fs.readdir(dirPath, function(err, files) {
-            if(err) {
-                // Pass the error on to callback
-                callback(err, []);
-                return;
-            }
-            var wait = files.length,
-                count = 0,
-                folderDone = function(err) {
-                    count++;
-                    // If we cleaned out all the files, continue
-                    if( count >= wait || err) {
-                        fs.rmdir(dirPath,callback);
-                    }
-                };
-            // Empty directory to bail early
-            if(!wait) {
-                folderDone();
-                return;
-            }
-
-            dirPath = path.normalize(dirPath);
-            files.forEach(function(file) {
-                var curPath = path.join(dirPath,file);
-                fs.lstat(curPath, function(err, stats) {
-                    if( err ) {
-                        callback(err, []);
-                        return;
-                    }
-                    if( stats.isDirectory() ) {
-                        removeFiles(curPath, folderDone);
-                    } else {
-                        fs.unlink(curPath, folderDone);
-                    }
-                });
-            });
-        });
-    })(full_path, function(err){
-        if (err){
-            res.end(error(err.message, errors.REQUEST_FAILED));
-        } else {
-            res.end(success("Directory Deleted"));
-        }
-    });
-});
 
 // [ rename file or directory ]
 app.post("/rename", function (req, res) {
