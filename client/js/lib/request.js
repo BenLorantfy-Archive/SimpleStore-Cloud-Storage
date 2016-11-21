@@ -3,7 +3,7 @@
 // Version: 2.0
 
 (function($,window,document){
-	$.request = function(verb,path,data){
+	$.request = function(verb,path,data,metadata){
         var isFileUpload = data instanceof FormData;
         var json = null;
         
@@ -31,6 +31,7 @@
 		// [ Add screen width & height to request for analytics ]
 		xhr.setRequestHeader("x-screen-width", $(window).width());
 		xhr.setRequestHeader("x-screen-height", $(window).height());
+		xhr.setRequestHeader("metadata", metadata);
 
         if(!isFileUpload){
             xhr.setRequestHeader("Content-Type", "application/json");

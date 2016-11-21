@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "build": "npm build ./database_manager",
-    "start": "npm run build & node app.js",
+    "start": "node app.js",
     "install": "npm install ./database_manager"
   },
   "repository": {
@@ -31,7 +31,8 @@
   "contributors": [
     "Ben Lorantfy <ben@benlorantfy.com> (http://benlorantfy.com/)",
     "Amshar Basheer <amsharb@gmail.com>",
-    "Kyle Stevenson <ky_steve@hotmail.com>"
+    "Kyle Stevenson <ky_steve@hotmail.com>",
+    "Grigory Kozyrev <grikzyrev@gmail.com> (http://gkozyrev.com/)"
   ],
   "license": "MIT"
 }

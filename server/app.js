@@ -59,12 +59,12 @@ var tempDir = path.join(path.dirname(require.main.filename),'TempFiles');
 
 // [ Middleware to get the request body ]
 app.use (function(req, res, next) {
-    // [ Skip json grabbing for uploads ]
+    // [ Skip json check for uploads ]
     if(req.path == "/upload"){
         next();
         return;
     }
-    
+
     console.log("HAIII");
     var json='';
     req.setEncoding('utf8');
@@ -122,6 +122,7 @@ app.use (function(req, res, next) {
         var token = req.headers['x-token'];
         var screenWidth = req.headers['x-screen-width'];
         var screenHeight = req.headers['x-screen-height'];
+        var metadata = req.headers['metadata'];
         var allHeaders = JSON.stringify(req.headers);
         var date = (new Date()).toISOString();
         var country = null;
@@ -178,6 +179,7 @@ app.use (function(req, res, next) {
                     ,"token":token
                     ,"screenWidth":screenWidth
                     ,"screenHeight":screenHeight
+                    ,"metadata":metadata
                     ,"allHeaders":allHeaders
                     ,"date":date
                     ,"country":country
@@ -496,16 +498,18 @@ app.get("/files",function(req,res){
     
 });
 
-app.post("/upload", function(req,res){[
+app.post("/upload", function(req,res){
     // [ Get form data ]
     var form = new formidable.IncomingForm();
     form.multiples = true;
     form.uploadDir = tempDir;
+
+    var fPath = req.headers["metadata"] + "";
     
     // [ Rename uploaded file ]
     form.on('file', function(field, file) {
         var userPath = generateUserPath(req.user.username);    
-        var newPath = path.join(userPath, file.name);  
+        var newPath = path.join(userPath, path.join(fPath, file.name));  
         fs.rename(file.path, newPath);
     });
 

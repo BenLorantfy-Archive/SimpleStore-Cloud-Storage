@@ -5,6 +5,8 @@
 $.request.host = "http://localhost:1337";
     
 var app = angular.module('app', []);
+var disableUpload = false;
+
 app.controller('MainController', function($scope, $compile) {
     
     (function contextMenuEvents(){
@@ -51,9 +53,19 @@ app.controller('MainController', function($scope, $compile) {
             selector: ".fileColumn",
             // define the elements of the menu
             items: {
-                uploadFiles: {name: "Upload File(s)", callback: function(key, opt){ 
+                uploadFiles: {name: "Upload File(s)", callback: function(key, opt){
+                    if (disableUpload){
+                        return;
+                    }
+
                     // [ Remove the old file input ]
                     $("#fileInput").remove();
+                    disableUpload = true;
+
+                    // Get current folder
+                    var col = $(this);
+                    var colIndex = col.closest(".fileColumnHolder").index();
+                    var folder = columnStack[colIndex];
                     
                     // [ Add the new input ]
                     var input = $('<input id="fileInput" style="display:none;" type="file" multiple />');
@@ -61,6 +73,7 @@ app.controller('MainController', function($scope, $compile) {
                     
                     // [ Add event listener for when user selects files or folders ]
                     input.change(function(){
+                        
                         var files = $(this).get(0).files;
 
                         if (files.length > 0){
@@ -81,19 +94,14 @@ app.controller('MainController', function($scope, $compile) {
                             console.log('Trying to upload:');
                             console.log(formData);
 
-                            /*$.ajax({
-                                url: $.request.host + '/files',
-                                type: 'POST',
-                                data: formData,
-                                processData: false,
-                                contentType: false,
-                                success: function(data){
-                                    console.log('upload successful!');
-                                }
-                            });*/
-
-                            $.request("POST","/upload", formData).done(function(root){
+                            $.request("POST","/upload", formData, folder.path).done(function(root){
                                 console.log('Upload done');
+                                disableUpload = false;
+                                renderFilesScreen();
+                            }).fail(function(root){
+                                console.log('Upload failed');
+                                disableUpload = false;
+                                renderFilesScreen();
                             });
                         }
                     })
@@ -102,6 +110,10 @@ app.controller('MainController', function($scope, $compile) {
                     input.click();
                 }},
                 uploadFolder: {name: "Upload Folder", callback: function(key, opt){ 
+                    if (disableUpload){
+                        return;
+                    }
+
                     // [ Remove the old file input ]
                     $("#fileInput").remove();
                     
