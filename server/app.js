@@ -65,7 +65,6 @@ app.use (function(req, res, next) {
         return;
     }
 
-    console.log("HAIII");
     var json='';
     req.setEncoding('utf8');
     req.on('data', function(chunk) { 
@@ -78,12 +77,10 @@ app.use (function(req, res, next) {
             next();
         }else{
             try{
-                console.log("REALLYY??")
                 // [ If valid json, set req.body ]
                 var data = JSON.parse(json);
                 if(isPlainObj(data)){
                     req.body = data;
-                    console.log("CRAZZY");
                     next();
                 }else{
                     // [ Tell user json was naughty ]
@@ -532,6 +529,43 @@ app.post("/upload", function(req,res){
 
     form.parse(req);
 });
+
+app.post("uploadDirectory", function(req,res){
+    // [ Get form data ]
+    var form = new formidable.IncomingForm();
+    form.multiples = true;
+    form.uploadDir = tempDir;
+
+    var selectedPath = req.headers["metadata"] + "";
+
+    // [ Keeps track of every file that was sucessfully uploaded ]
+    var uploadedFiles = [];
+    
+    // [ Rename uploaded file ]
+    form.on('file', function(field, file) {
+        var userPath = generateUserPath(req.user.username);    
+        var newPath = path.join(userPath, path.join(selectedPath, file.name));  
+        fs.rename(file.path, newPath);
+        
+        uploadedFiles.push({
+             name:file.name
+            ,path:path.join(selectedPath, file.name)
+            ,isFile:true
+            ,isFolder:false
+        })
+    });
+
+    form.on('error', function(err) {
+        console.log('An error has occured: \n' + err);
+    });
+
+    form.on('end', function() {
+        console.log('success');
+        res.json(uploadedFiles);
+    });
+
+    form.parse(req);
+})
 
 app.delete("/files", function(req,res){
 

@@ -5,6 +5,7 @@
 $.request.host = "http://localhost:1337";
 
 var archiver = require('archiver');
+var smalltalk = require('smalltalk')
     
 var app = angular.module('app', []);
 var disableUpload = false;
@@ -76,7 +77,43 @@ app.controller('MainController', function($scope, $compile) {
                     
                 }},
             }
-        });  
+        });
+
+        function uploadFiles(formData,colIndex){
+            var folder = columnStack[colIndex];
+
+            $.request("POST","/upload", formData, folder.path).done(function(files){
+                console.log('Upload done');
+                disableUpload = false;
+                
+                // [ Add all the files ]
+                for(var i = 0; i < files.length; i++){
+                    folder.children.push(files[i]);                    
+                    
+                    var el = $("<tree-item></tree-item>");
+                    
+                    var attrs = getAttrsFromData(files[i]);
+                    el.attr(attrs);
+                
+                    // [ Append to all the other open folders ]
+                    var folders = $("tree-item[path='" + folder.path.replace(/'/g,"\\'") + "']");
+                    folders.each(function(){
+                        var clone = el.clone();
+                        $(this).append(clone);
+                        
+                        $compile(clone)($scope);
+                    });
+                    
+                    // [ Append to column ]
+                    col.append(el);
+                    $compile(el)($scope);
+                }
+            }).fail(function(root){
+                console.log('Upload failed');
+                disableUpload = false;
+
+            });
+        }
         
         $.contextMenu({
             // define which elements trigger this menu
@@ -95,7 +132,6 @@ app.controller('MainController', function($scope, $compile) {
                     // Get current folder
                     var col = $(this);
                     var colIndex = col.closest(".fileColumnHolder").index();
-                    var folder = columnStack[colIndex];
                     
                     // [ Add the new input ]
                     var input = $('<input id="fileInput" style="display:none;" type="file" multiple />');
@@ -113,56 +149,40 @@ app.controller('MainController', function($scope, $compile) {
                             // AJAX request
                             var formData = new FormData();
 
+                            if (files.length == 1){
+                                file = files[0];
+                                
+                                smalltalk.prompt('File upload', 'Select file name for upload.', file.name).then(function(value) {
+                                    formData.append('uploads[]', file, value);
+                                    uploadFiles(formData,colIndex);
+                                }, function() {
+
+                                    formData.append('uploads[]', file, file.name);
+                                    uploadFiles(formData,colIndex);
+                                });
+
+                                return;
+                            }
+
+                                
+                                smalltalk.prompt('File upload', 'Select file name for upload.', file.name).then(function(value) {
+                                    formData.append('uploads[]', file, value);
+                                    uploadFiles(formData,colIndex);
+                                }, function() {
+                                    formData.append('uploads[]', file, file.name);
+                                    uploadFiles(formData,colIndex);
+                                });
                             // loop through all the selected files
                             for (var i = 0; i < files.length; i++) {
                                 var file = files[i];
 
-                                filename = file.name;
-                                if (files.length == 1){
-                                    var filename = prompt("Please enter new filename", file.name);
-                                }
-
                                 // add the files to formData object for the data payload
-                                formData.append('uploads[]', file, filename);
+                                formData.append('uploads[]', file, file.name);
                             }
 
-                            console.log('Trying to upload:');
-                            console.log(formData);
-
-                            $.request("POST","/upload", formData, folder.path).done(function(files){
-                                console.log('Upload done');
-                                disableUpload = false;
-                                
-                                // [ Add all the files ]
-                                for(var i = 0; i < files.length; i++){
-                                    folder.children.push(files[i]);
-                                    
-                                    
-                                    var el = $("<tree-item></tree-item>");
-                                    
-                                    var attrs = getAttrsFromData(files[i]);
-                                    el.attr(attrs);
-                                
-                                    // [ Append to all the other open folders ]
-                                    var folders = $("tree-item[path='" + folder.path.replace(/'/g,"\\'") + "']");
-                                    folders.each(function(){
-                                        var clone = el.clone();
-                                        $(this).append(clone);
-                                        
-                                        $compile(clone)($scope);
-                                    });
-                                    
-                                    // [ Append to column ]
-                                    col.append(el);
-                                    $compile(el)($scope);
-                                }
-
-                            }).fail(function(root){
-                                console.log('Upload failed');
-                                disableUpload = false;
-
-                            });
+                            uploadFiles(formData,colIndex);
                         }else{
+                            // Nothing was selected OR cancel
                             // Nothing was selected OR cancel
                             disableUpload = false;
                         }
@@ -192,6 +212,30 @@ app.controller('MainController', function($scope, $compile) {
 
                         output.on('close', function () {
                             console.log(archive.pointer() + ' total bytes');
+                            console.log('archiver has been finalized and the output file descriptor has closed.');
+                        });
+
+                        archive.on('error', function(err){
+                            throw err;
+                        });
+
+                        var output = file_system.createWriteStream('target.zip');
+                        var archive = archiver('zip');
+
+                        output.on('close', function () {
+                            console.log(archive.pointer() + ' total bytes');
+                            console.log('archiver has been finalized and the output file descriptor has closed.');
+                        });
+
+                        archive.on('error', function(err){
+                            throw err;
+                        });
+
+                        archive.pipe(output);
+                        archive.bulk([
+                            { expand: true, cwd: 'source', src: ['**'], dest: 'source'}
+                        ]);
+                        archive.finalize();
                             console.log('archiver has been finalized and the output file descriptor has closed.');
                         });
 
@@ -388,10 +432,11 @@ app.controller('MainController', function($scope, $compile) {
         el.attr(attrs);
 
         parent.append(el);
-
-        for(var i = 0; i < item.children.length; i++){
-            createTreeItem(item.children[i],el);
-        } 
+        if (item.children){
+            for(var i = 0; i < item.children.length; i++){
+                createTreeItem(item.children[i],el);
+            }
+        }
 
         return el;
     }
