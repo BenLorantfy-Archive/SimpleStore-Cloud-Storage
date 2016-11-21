@@ -4,8 +4,8 @@
   "description": "Module to manage database connection, insert, update, search and delete",
   "main": "index.js",
   "scripts": {
-    "build": "tsc index.ts",
-    "build:full": "tsc index.ts & tsc test.ts",
+    "build": "tsc index.ts --module \"commonjs\" ",
+    "build:full": "tsc index.ts --module \"commonjs\"  & tsc test.ts --module \"commonjs\" ",
     "test": "npm run build:full & node test.js",
     "install": "npm install -g typescript & npm run build"
   },
