@@ -390,8 +390,6 @@ app.post("/token",function(req,res){
         // [ If user doesn't want to sign up, skip to authentication step ]
         authenticate();
     }
-    
-
 });
 
 app.get("/files",function(req,res){
@@ -770,25 +768,30 @@ app.post("/download", function (req, res) {
         var full_path = path.join(generateUserPath(username), download_path);
         path.normalize(full_path);
 
-        //if item is a file, donit zip it, just send to client
-        if(fs.statSync(full_path).isFile()) {
-            res.download(full_path, function (err) {
-                if (err) {
-                    res.end(error(err.message), errors.REQUEST_FAILED);
-                } else {
-                    res.end(success('download complete'));
-                }
-            });
-            // if its a folder, zip it
-        } else {
-            zip.folder(path.basename(items[0]), full_path);
-            zip
-                .generateNodeStream({type: 'nodebuffer', streamFiles: true})
-                .pipe(res)
-                .on('finish', function () {
-                    console.log("zip written.");
-                    //res.download(path.join(generateUserPath(username), 'out.zip'));
+        if(fs.existsSync(full_path)) {
+            //if item is a file, donit zip it, just send to client
+            if (fs.statSync(full_path).isFile()) {
+                res.download(full_path, function (err) {
+                    if (err) {
+                        //res.end(error(err.message), errors.REQUEST_FAILED);
+                        error(err.message);
+                    } else {
+                        success('download successful');
+                    }
                 });
+                // if its a folder, zip it
+            } else {
+                zip.folder(path.basename(items[0]), full_path);
+                zip
+                    .generateNodeStream({type: 'nodebuffer', streamFiles: true})
+                    .pipe(res)
+                    .on('finish', function () {
+                        success('zip written successful');
+                        //res.download(path.join(generateUserPath(username), 'out.zip'));
+                    });
+            }
+        } else {
+            return res.end(error("Invalid path", errors.BAD_DIR_PATH));
         }
         //if multiple files/folders zip them
     }else if(items.length > 1) {
@@ -802,10 +805,14 @@ app.post("/download", function (req, res) {
             var full_path = path.join(generateUserPath(username), download_path);
             path.normalize(full_path);
 
-            if (fs.statSync(full_path).isFile()) {
-                zip.file(path.basename(items[i]), full_path);
-            } else {
-                zip.folder(path.basename(items[i]), full_path);
+            if(fs.existsSync(full_path)) {
+                if (fs.statSync(full_path).isFile()) {
+                    zip.file(path.basename(items[i]), full_path);
+                } else {
+                    zip.folder(path.basename(items[i]), full_path);
+                }
+            } else{
+                return res.end(error("Invalid path", errors.BAD_DIR_PATH));
             }
         }
 
