@@ -4,8 +4,8 @@
 // Set the $.request host
 $.request.host = "http://localhost:1337";
 
-var archiver = require('archiver');
-var smalltalk = require('smalltalk')
+//var archiver = require('archiver');
+//var smalltalk = require('smalltalk')
     
 var app = angular.module('app', []);
 var disableUpload = false;
@@ -205,50 +205,50 @@ app.controller('MainController', function($scope, $compile) {
                     
                     // [ Add event listener for when user selects files or folders ]
                     input.change(function(){
-                        var folder = this.get(0).folders;
-
-                        var output = file_system.createWriteStream('target.zip');
-                        var archive = archiver('zip');
-
-                        output.on('close', function () {
-                            console.log(archive.pointer() + ' total bytes');
-                            console.log('archiver has been finalized and the output file descriptor has closed.');
-                        });
-
-                        archive.on('error', function(err){
-                            throw err;
-                        });
-
-                        var output = file_system.createWriteStream('target.zip');
-                        var archive = archiver('zip');
-
-                        output.on('close', function () {
-                            console.log(archive.pointer() + ' total bytes');
-                            console.log('archiver has been finalized and the output file descriptor has closed.');
-                        });
-
-                        archive.on('error', function(err){
-                            throw err;
-                        });
-
-                        archive.pipe(output);
-                        archive.bulk([
-                            { expand: true, cwd: 'source', src: ['**'], dest: 'source'}
-                        ]);
-                        archive.finalize();
-                            console.log('archiver has been finalized and the output file descriptor has closed.');
-                        });
-
-                        archive.on('error', function(err){
-                            throw err;
-                        });
-
-                        archive.pipe(output);
-                        archive.bulk([
-                            { expand: true, cwd: 'source', src: ['**'], dest: 'source'}
-                        ]);
-                        archive.finalize();
-                    })
+//                        var folder = this.get(0).folders;
+//
+//                        var output = file_system.createWriteStream('target.zip');
+//                        var archive = archiver('zip');
+//
+//                        output.on('close', function () {
+//                            console.log(archive.pointer() + ' total bytes');
+//                            console.log('archiver has been finalized and the output file descriptor has closed.');
+//                        });
+//
+//                        archive.on('error', function(err){
+//                            throw err;
+//                        });
+//
+//                        var output = file_system.createWriteStream('target.zip');
+//                        var archive = archiver('zip');
+//
+//                        output.on('close', function () {
+//                            console.log(archive.pointer() + ' total bytes');
+//                            console.log('archiver has been finalized and the output file descriptor has closed.');
+//                        });
+//
+//                        archive.on('error', function(err){
+//                            throw err;
+//                        });
+//
+//                        archive.pipe(output);
+//                        archive.bulk([
+//                            { expand: true, cwd: 'source', src: ['**'], dest: 'source'}
+//                        ]);
+//                        archive.finalize();
+//                            console.log('archiver has been finalized and the output file descriptor has closed.');
+//                        });
+//
+//                        archive.on('error', function(err){
+//                            throw err;
+//                        });
+//
+//                        archive.pipe(output);
+//                        archive.bulk([
+//                            { expand: true, cwd: 'source', src: ['**'], dest: 'source'}
+//                        ]);
+//                        archive.finalize();
+                    });
                     
                     // [ Trigger the input being clicked ]
                     input.click();
@@ -320,9 +320,7 @@ app.controller('MainController', function($scope, $compile) {
             if(e.keyCode == 13){
                 // [ Get new name ]
                 var newName = $(this).val();
-                // todo: validate that newName is a valid fileName
-            
-                
+         
                 // [ Get Fil ePath ]
                 var el = $(this).closest("tree-item");
                 var path = el.attr("path");
@@ -335,9 +333,12 @@ app.controller('MainController', function($scope, $compile) {
                 var folder = columnStack[colIndex];
                 var item = findItemByPath(columnStack[colIndex],path,true);
                 var parent = item.parent;
+                var oldPath = item.path;
                 
                 // [ Change file info ]
                 item.name = newName;
+                
+
                 
                 // [ Change the path ]
                 if(parent.path == "/"){
@@ -352,27 +353,46 @@ app.controller('MainController', function($scope, $compile) {
                     };
                     
                     $.request("POST","/folders",data).done(function(){
+                        updateUI();
                         
+                        // [ Not new anymore ]
+                        delete item.new;
                     }).fail(function(){
                         alert("Folder creation failed");
                     });
+                }else{
+                    var data = {
+                         path:oldPath
+                        ,newname:newName
+                    };
+                    
+                    // [ Send request to server to rename it ]
+                    $.request("POST","/rename",data).done(function(){
+                        updateUI();
+                    }).fail(function(err){
+                        alert("Failed to rename file: " + err);
+                    })                    
                 }
                 
-                // [ Not new anymore ]
-                delete item.new;
+            
                 
-                // [ Update UI with new name ]
-                var els = $("tree-item[path='" + path.replace(/'/g,"\\'") + "']");
-                els.each(function(){
-                    var el = $(this);
-                    el.attr("name",item.name);
-                    el.attr("path",item.path);
-                    el.children(".itemContainer").children(".itemNameContainer").find(".name").text(newName);
-                })
+                function updateUI(){
+                    // [ Update UI with new name ]
+                    var els = $("tree-item[path='" + path.replace(/'/g,"\\'") + "']");
+                    els.each(function(){
+                        var el = $(this);
+                        el.attr("name",item.name);
+                        el.attr("path",item.path);
+                        el.children(".itemContainer").children(".itemNameContainer").find(".name").text(newName);
+                    })
+
+                    // [ Hide all the textboxes ]
+                    $("tree-item").removeClass("editing");                    
+                }
+                
 
                 
-                // [ Hide all the textboxes ]
-                $("tree-item").removeClass("editing");
+                
                 
             }
         })

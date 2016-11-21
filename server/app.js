@@ -702,7 +702,7 @@ app.delete("/folders", function (req, res) {
 });
 
 // [ rename file or directory ]
-app.put("/rename", function (req, res) {
+app.post("/rename", function (req, res) {
 
     var username = req.user.username;
 
