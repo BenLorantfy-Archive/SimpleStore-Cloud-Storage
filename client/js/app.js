@@ -17,23 +17,44 @@ app.controller('MainController', function($scope, $compile) {
     
     function deleteSelectedItems(){
         if(confirm("Are you sure?")){
+            var paths = [];
             $(".workingItem:not(.secondary)").each(function(){
                 var el = $(this);
                 var path = el.attr("path");
                 var col = $(this).closest(".fileColumn");
                 var colIndex = col.index();
                 var folder = columnStack[colIndex];
-                var item = findItemByPath(folder,path);
+                var item = findItemByPath(folder,path);  
+                
+                paths.push(item.path);
+            })
+            
+            
+            $.request("DELETE","/files",{
+                paths:paths
+            }).done(function(){
+                $(".workingItem:not(.secondary)").each(function(){
+                    var el = $(this);
+                    var path = el.attr("path");
+                    var col = $(this).closest(".fileColumn");
+                    var colIndex = col.index();
+                    var folder = columnStack[colIndex];
+                    var item = findItemByPath(folder,path);
 
-                // [ Remove from tree object ]
-                item.parent.children.splice(item.parent.children.indexOf(item),1);
+                    // [ Remove from tree object ]
+                    item.parent.children.splice(item.parent.children.indexOf(item),1);
 
-                // [ remove all the elements from the DOM ]
-                $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();                    
+                    // [ remove all the elements from the DOM ]
+                    $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();                    
 
-            });
+                });
 
-            $("#selectionTools").hide();
+                $("#selectionTools").hide();               
+            }).fail(function(err){
+                alert("Delete failed: " + err);
+            })
+            
+
 
         }
     }     
