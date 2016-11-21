@@ -12,6 +12,7 @@ var knex    = require("knex");              // SQL query builder
 var bcrypt  = require("bcrypt-nodejs");     // Password hashing
 var winston = require('winston');           // Logging
 var Promise = require('promise');           // Promises
+var zip     = require('zip-folder');        // Zip Folders
     
 // [ Config file with db credentials ]
 var config  = require("./config.json");     // Config file with database username and password
@@ -664,27 +665,52 @@ app.put("/rename", function (req, res) {
     });
 });
 
-app.get("/download", function (req, res) {
+app.post("/download", function (req, res) {
 
     var username = req.user.username;
 
-    // //check if body exists
-    // if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
-    // var data = req.body;
-    //
-    // //check if path field exists
-    // if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
-    //
-    // //validate the requested path
-    // var new_path = path.normalize(data.path);
-    // if(!isPathValid(new_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
+    //check if body exists
+    if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
+    var data = req.body;
+
+    //check if path field exists
+    if(!data.path) return res.end(error("Missing path", errors.MISSING_FIELD));
+
+    //validate the requested path
+    var download_path = path.normalize(data.path);
+    if(!isPathValid(download_path))  return res.end(error("Invalid path", errors.BAD_DIR_PATH));
 
     //generate full path
-    var full_path = path.join(generateUserPath(username), 'test.txt');
+    var full_path = path.join(generateUserPath(username), download_path);
     path.normalize(full_path);
 
-   res.download(full_path);
+    //determine if user wants a file or folder
+    fs.stat(full_path, function(err, stats){
+        if(err){
+            return res.end(error(err.message));
+        } else {
+            if (stats.isFile()) {
+                res.download(full_path);
+            } else {
+                //if folder, zip it first
+                var zip_path = path.join(full_path, 'archive.zip')
+                zip(full_path, zip_path, function(err) {
+                    if(err) {
+                        return res.end(error(err.message));
+                    } else {
+                        res.download(zip_path);
+                    }
+                });
+            }
+        }
 
+    });
+
+
+
+   // var readStream = fs.createReadStream(zip_path);
+    // We replaced all the event handlers with a simple call to readStream.pipe()
+   // readStream.pipe(res);
 
 
 });
