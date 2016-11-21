@@ -4,7 +4,36 @@
 var app = angular.module('app', []);
 
 app.controller('MainController', function($scope, $compile) {
+    $("#delete").click(function(){
+        deleteSelectedItems();
+    })
+
+    function deleteSelectedItems(){
+        if(confirm("Are you sure?")){
+            $(".workingItem:not(.secondary)").each(function(){
+                var el = $(this);
+                var path = el.attr("path");
+                var col = $(this).closest(".fileColumn");
+                var colIndex = col.index();
+                var folder = columnStack[colIndex];
+                var item = findItemByPath(folder,path);
+
+                // [ Remove from tree object ]
+                item.parent.children.splice(item.parent.children.indexOf(item),1);
+
+                // [ remove all the elements from the DOM ]
+                $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();                    
+
+            });
+
+            $("#selectedFilesHolder").hide();
+
+        }
+    }        
+        
     (function contextMenuEvents(){
+
+        
         $.contextMenu({
             // define which elements trigger this menu
             selector: "tree-item",
@@ -23,19 +52,25 @@ app.controller('MainController', function($scope, $compile) {
                     textbox[0].select();
                 }},
                 deleteItem: {name: "Delete", callback: function(key, opt){ 
-                    var el = $(this);
-                    var path = el.attr("path");
-                    var col = $(this).closest(".fileColumn");
-                    var colIndex = col.index();
-                    var folder = columnStack[colIndex];
+//                    if(confirm("Are you sure?")){
+//                        var el = $(this);
+//                        var path = el.attr("path");
+//                        var col = $(this).closest(".fileColumn");
+//                        var colIndex = col.index();
+//                        var folder = columnStack[colIndex];
+//
+//                        var item = findItemByPath(folder,path);
+//
+//                        // [ Remove from tree object ]
+//                        item.parent.children.splice(item.parent.children.indexOf(item),1);
+//
+//                        // [ remove all the elements from the DOM ]
+//                        $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();   
+//                        
+//                        $("#selectionTools")
+//                    }
                     
-                    var item = findItemByPath(folder,path);
-                    
-                    // [ Remove from tree object ]
-                    item.parent.children.splice(item.parent.children.indexOf(item),1);
-                    
-                    // [ remove all the elements from the DOM ]
-                    $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();
+                    deleteSelectedItems();
                 }},
                 downloadItem: {name: "Download", callback: function(key, opt){ 
                     
@@ -142,6 +177,56 @@ app.controller('MainController', function($scope, $compile) {
             }
         });       
         
+        $("#download").click(function(){
+            // [ Remove the old file input ]
+            $("#fileInput").remove();
+
+            // [ Add the new input ]
+            var input = $('<input id="fileInput" style="display:none;" type="file" webkitdirectory mozdirectory msdirectory odirectory directory multiple />');
+            $("body").append(input);
+
+            // [ Add event listener for when user selects files or folders ]
+            input.change(function(){
+
+            })
+
+            // [ Trigger the input being clicked ]
+            input.click();            
+        })
+        
+        $("#uploadFiles").click(function(){
+            // [ Remove the old file input ]
+            $("#fileInput").remove();
+
+            // [ Add the new input ]
+            var input = $('<input id="fileInput" style="display:none;" type="file" webkitdirectory mozdirectory msdirectory odirectory directory multiple />');
+            $("body").append(input);
+
+            // [ Add event listener for when user selects files or folders ]
+            input.change(function(){
+
+            })
+
+            // [ Trigger the input being clicked ]
+            input.click();            
+        })
+        
+        $("#uploadFolder").click(function(){
+            // [ Remove the old file input ]
+            $("#fileInput").remove();
+
+            // [ Add the new input ]
+            var input = $('<input id="fileInput" style="display:none;" type="file" webkitdirectory mozdirectory msdirectory odirectory directory multiple />');
+            $("body").append(input);
+
+            // [ Add event listener for when user selects files or folders ]
+            input.change(function(){
+
+            })
+
+            // [ Trigger the input being clicked ]
+            input.click();            
+        })
         
         $("body").on("keydown",".newName",function(e){
             if(e.keyCode == 13){
@@ -459,16 +544,40 @@ app.controller('MainController', function($scope, $compile) {
 
     (function loginEvents(){
         
-        // [ Login user ]
-        $("#login").click(function(){
-            var w = $(window).width();
-            var h = $(window).height();
+        // [ Toggle Signup UI ]
+        $("#openSignUp,#openLogIn").click(function(){
+            $("#signupUI").toggle();
+            $("#login").toggle();
+            $("#signUpMessage").toggle();
+            $(".extraFieldContainer").slideToggle("fast");
+        });
+        
+        $("#signup").click(function(){
 
             $("#loginScreen").fadeToggle("fast",function(){
                 $("#filesScreen").fadeToggle("fast");
                 renderFilesScreen();
             });
 
+
+            
+            expandWindow();
+        })
+        
+        // [ Login user ]
+        $("#login").click(function(){
+            $("#loginScreen").fadeToggle("fast",function(){
+                $("#filesScreen").fadeToggle("fast");
+                renderFilesScreen();
+            });
+
+            expandWindow();
+        });      
+        
+        function expandWindow(){
+            var w = $(window).width();
+            var h = $(window).height();
+            
             var currentCenterX = window.screenX + $(window).width() / 2;
             var currentCenterY = window.screenY + $(window).height() / 2;
             var lastWidth = w;
@@ -488,8 +597,8 @@ app.controller('MainController', function($scope, $compile) {
                     lastWidth = newWidth;
                     lastHeight = newHeight;
                 }
-            })
-        });       
+            })            
+        }
     })();
  
 });

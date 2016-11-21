@@ -11,10 +11,17 @@
     <body ng-app="app" ng-controller="MainController">
         <section id="loginScreen">
             <img id="logo" src="img/logo.png" />
-            <input type="text" placeholder="Username" />
-            <input type="password" placeholder="Password" />
+            <input id="username" type="text" placeholder="Username" />
+            <input id="password" type="password" placeholder="Password" />
+            <div class="extraFieldContainer">
+                <input id="confirmPassword" type="password" placeholder="Confirm Password" />                
+            </div>
+            <div id="signupUI">
+                <input type="button" value="Sign Up" id="signup" />
+                <div id="logInMessage">Already have an account? <span id="openLogIn">Log In</span></div>      
+            </div>           
             <input type="button" value="Login" id="login" />
-            <div id="signUpMessage">Don't have an account? <span id="signUp">Sign Up</span></div>        
+            <div id="signUpMessage">Don't have an account? <span id="openSignUp">Sign Up</span></div>  
         </section>
 
         <section id="filesScreen" style="display:none">            
@@ -25,11 +32,12 @@
                     <div id="selectedFilesHolder">
                     
                     </div>
-                    <input type="button" value="Download" id="upload" />
-                    <input type="button" value="Delete" id="upload" class="destructive" />
+                    <input type="button" value="Download" id="download" />
+                    <input type="button" value="Delete" id="delete" class="destructive" />
                 </div>
                 <div id="universalTools">
-                    <input type="button" value="Upload" id="upload" />                
+                    <input type="button" value="Upload Folder" id="uploadFolder" />    
+                    <input type="button" value="Upload Files" id="uploadFiles" />    
                 </div>
 
             </aside>
