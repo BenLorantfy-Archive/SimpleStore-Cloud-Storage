@@ -26,7 +26,7 @@ app.controller('MainController', function($scope, $compile) {
 
             });
 
-            $("#selectedFilesHolder").hide();
+            $("#selectionTools").hide();
 
         }
     }        
