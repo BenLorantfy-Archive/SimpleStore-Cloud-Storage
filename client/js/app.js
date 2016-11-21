@@ -4,8 +4,11 @@
 // Set the $.request host
 $.request.host = "http://localhost:1337";
 
-var archiver = require('archiver');
-var smalltalk = require('smalltalk')
+var file_system = require('fs');            // File System
+var archiver = require('archiver');         // Archiver
+var smalltalk = require('smalltalk');       // Smalltalk (Prompt window)
+var jszip   = require('jszip');             // Zip files
+var path    = require('path');              // File Path parsing
     
 var app = angular.module('app', []);
 var disableUpload = false;
@@ -36,6 +39,10 @@ app.controller('MainController', function($scope, $compile) {
             $("#selectionTools").hide();
 
         }
+    }
+
+    function randomNumber(){
+        return Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
     }     
     
     (function contextMenuEvents(){
@@ -79,7 +86,8 @@ app.controller('MainController', function($scope, $compile) {
             }
         });
 
-        function uploadFiles(formData,colIndex){
+        function uploadFiles(formData,col){
+            var colIndex = col.closest(".fileColumnHolder").index();
             var folder = columnStack[colIndex];
 
             $.request("POST","/upload", formData, folder.path).done(function(files){
@@ -131,7 +139,6 @@ app.controller('MainController', function($scope, $compile) {
 
                     // Get current folder
                     var col = $(this);
-                    var colIndex = col.closest(".fileColumnHolder").index();
                     
                     // [ Add the new input ]
                     var input = $('<input id="fileInput" style="display:none;" type="file" multiple />');
@@ -154,24 +161,16 @@ app.controller('MainController', function($scope, $compile) {
                                 
                                 smalltalk.prompt('File upload', 'Select file name for upload.', file.name).then(function(value) {
                                     formData.append('uploads[]', file, value);
-                                    uploadFiles(formData,colIndex);
+                                    uploadFiles(formData,col);
                                 }, function() {
 
                                     formData.append('uploads[]', file, file.name);
-                                    uploadFiles(formData,colIndex);
+                                    uploadFiles(formData,col);
                                 });
 
                                 return;
                             }
 
-                                
-                                smalltalk.prompt('File upload', 'Select file name for upload.', file.name).then(function(value) {
-                                    formData.append('uploads[]', file, value);
-                                    uploadFiles(formData,colIndex);
-                                }, function() {
-                                    formData.append('uploads[]', file, file.name);
-                                    uploadFiles(formData,colIndex);
-                                });
                             // loop through all the selected files
                             for (var i = 0; i < files.length; i++) {
                                 var file = files[i];
@@ -180,7 +179,7 @@ app.controller('MainController', function($scope, $compile) {
                                 formData.append('uploads[]', file, file.name);
                             }
 
-                            uploadFiles(formData,colIndex);
+                            uploadFiles(formData,col);
                         }else{
                             // Nothing was selected OR cancel
                             // Nothing was selected OR cancel
@@ -198,6 +197,9 @@ app.controller('MainController', function($scope, $compile) {
 
                     // [ Remove the old file input ]
                     $("#fileInput").remove();
+
+                    // Get current folder
+                    var col = $(this);
                     
                     // [ Add the new input ]
                     var input = $('<input id="fileInput" style="display:none;" type="file" webkitdirectory mozdirectory msdirectory odirectory directory multiple />');
@@ -205,22 +207,15 @@ app.controller('MainController', function($scope, $compile) {
                     
                     // [ Add event listener for when user selects files or folders ]
                     input.change(function(){
-                        var folder = this.get(0).folders;
-
-                        var output = file_system.createWriteStream('target.zip');
-                        var archive = archiver('zip');
-
-                        output.on('close', function () {
-                            console.log(archive.pointer() + ' total bytes');
-                            console.log('archiver has been finalized and the output file descriptor has closed.');
-                        });
-
-                        archive.on('error', function(err){
-                            throw err;
-                        });
-
-                        var output = file_system.createWriteStream('target.zip');
-                        var archive = archiver('zip');
+                        var formData = new FormData();
+                        
+                        var files = $(this).get(0).files;
+                        var filePath = files[0].path;
+                        
+                        var tempPath = __dirname + '\\TempFiles\\archive' + randomNumber() + '.zip';
+                        var output = file_system.createWriteStream(tempPath);
+                        
+                        /*var archive = archiver('zip');
 
                         output.on('close', function () {
                             console.log(archive.pointer() + ' total bytes');
@@ -232,22 +227,22 @@ app.controller('MainController', function($scope, $compile) {
                         });
 
                         archive.pipe(output);
+                        archive.directory(path);
                         archive.bulk([
-                            { expand: true, cwd: 'source', src: ['**'], dest: 'source'}
+                            { expand: true, cwd: 'source', src: [path], dest: 'source'}
                         ]);
-                        archive.finalize();
-                            console.log('archiver has been finalized and the output file descriptor has closed.');
-                        });
+                        archive.finalize();*/
 
-                        archive.on('error', function(err){
-                            throw err;
-                        });
-
-                        archive.pipe(output);
-                        archive.bulk([
-                            { expand: true, cwd: 'source', src: ['**'], dest: 'source'}
-                        ]);
-                        archive.finalize();
+                        var fullPath = path.normalize(filePath);
+                        var zip = new jszip();
+                        zip.folder("archive", fullPath);
+                        zip
+                            .generateNodeStream({type: 'nodebuffer', streamFiles: true})
+                            .pipe(output)
+                            .on('finish', function () {
+                                console.log("zip written.");
+                                //res.download(path.join(generateUserPath(username), 'out.zip'));
+                            });
                     })
                     
                     // [ Trigger the input being clicked ]
