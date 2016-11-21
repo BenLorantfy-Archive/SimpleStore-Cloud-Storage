@@ -23,9 +23,11 @@
 			xhr.setRequestHeader("x-token", $.request.token);
 		}
         
-        // [ Add screen width & height to request for analytics ]
-        xhr.setRequestHeader("x-screen-width", $(window).width());
-        xhr.setRequestHeader("x-screen-height", $(window).height());
+		// [ Add screen width & height to request for analytics ]
+		xhr.setRequestHeader("x-screen-width", $(window).width());
+		xhr.setRequestHeader("x-screen-height", $(window).height());
+
+		xhr.setRequestHeader("Content-Type", "application/octet-stream");
 
 		var handler = {
 			 doneCallback:function(){}
