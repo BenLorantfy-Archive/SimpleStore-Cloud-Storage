@@ -121,10 +121,11 @@ input[type="button"],button{
     display: inline-block;
     vertical-align: top;
     background-color:#F2F2F2;
+	overflow: scroll;
 }
 
 .fileColumnHeader{
-    color:#CECBD1;
+    color:#B5B2B7;
     font-size: 20px;
     margin-bottom:10px;
 }
@@ -190,7 +191,8 @@ input[type="button"],button{
     margin-right: auto;
 /*    border:1px solid rgba(0,0,0,0.2);*/
     margin-top:5px;
-    padding-left:10px;
+    padding-left:10px;	
+	overflow:hidden;
 }
 
 .selectedFile .folder{
