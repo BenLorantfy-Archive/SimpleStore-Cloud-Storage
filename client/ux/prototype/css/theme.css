@@ -164,6 +164,11 @@ input[type="button"],button{
 }
 */
 
+#universalTools [type="button"]{
+    width:140px;
+    margin-bottom: 10px;
+}
+
 #selectionTools [type="button"]{
     font-size:13px;
     padding:4px;
@@ -202,4 +207,25 @@ input[type="button"],button{
 
 .selectedFileName{
     vertical-align: middle;
+}
+
+#signUpMessage,#logInMessage{
+    width:100%;
+    text-align: center;
+    margin-top:20px;
+    color:grey;
+    font-size:14px;
+}
+
+#openSignUp,#openLogIn{
+    color:#2891FF;
+    cursor: pointer;
+}
+
+.extraFieldContainer{
+    display: none;
+}
+
+#signupUI{
+    display: none;
 }
