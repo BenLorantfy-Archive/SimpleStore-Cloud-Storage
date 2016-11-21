@@ -73,7 +73,20 @@ app.controller('MainController', function($scope, $compile) {
                     deleteSelectedItems();
                 }},
                 downloadItem: {name: "Download", callback: function(key, opt){ 
-                    
+                     // [ Remove the old file input ]
+                    $("#fileInput").remove();
+
+                    // [ Add the new input ]
+                    var input = $('<input id="fileInput" style="display:none;" type="file" webkitdirectory mozdirectory msdirectory odirectory directory multiple />');
+                    $("body").append(input);
+
+                    // [ Add event listener for when user selects files or folders ]
+                    input.change(function(){
+
+                    })
+
+                    // [ Trigger the input being clicked ]
+                    input.click();                     
                 }},
             }
         });  
@@ -479,10 +492,12 @@ app.controller('MainController', function($scope, $compile) {
             // [ Update the selected files list ]
             $("#selectedFilesHolder").empty();
             $(".workingItem:not(.secondary)").each(function(){
-                var name = $(this).attr("name");
+                var el = $(this);
+                var name = el.attr("name");
+                var isFolder = el.attr("is-folder") == "true";
                 $("#selectedFilesHolder").append(
                     "<div class='selectedFile'>" + 
-                        "<img class='folder' src='img/icons/folder.png'/>" + 
+                        "<img class='folder' src='img/icons/" + (isFolder ? "folder" : "text" ) + ".png'/>" + 
                         "<span class='selectedFileName'>" + name + "</span>" +
                     "</div>"
                 );
