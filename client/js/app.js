@@ -3,6 +3,8 @@
 
 // Set the $.request host
 $.request.host = "http://localhost:1337";
+
+var archiver = require('archiver');
     
 var app = angular.module('app', []);
 var disableUpload = false;
@@ -78,7 +80,7 @@ app.controller('MainController', function($scope, $compile) {
 
                         if (files.length > 0){
                             // One or more files selected, process the file upload
-
+                            
                             // create a FormData object which will be sent as the data payload in the
                             // AJAX request
                             var formData = new FormData();
@@ -87,8 +89,13 @@ app.controller('MainController', function($scope, $compile) {
                             for (var i = 0; i < files.length; i++) {
                                 var file = files[i];
 
+                                filename = file.name;
+                                if (files.length == 1){
+                                    var filename = prompt("Please enter new filename", file.name);
+                                }
+
                                 // add the files to formData object for the data payload
-                                formData.append('uploads[]', file, file.name);
+                                formData.append('uploads[]', file, filename);
                             }
 
                             console.log('Trying to upload:');
@@ -127,6 +134,9 @@ app.controller('MainController', function($scope, $compile) {
                                 disableUpload = false;
 
                             });
+                        }else{
+                            // Nothing was selected OR cancel
+                            disableUpload = false;
                         }
                     })
                     
@@ -147,7 +157,25 @@ app.controller('MainController', function($scope, $compile) {
                     
                     // [ Add event listener for when user selects files or folders ]
                     input.change(function(){
-                        
+                        var folder = this.get(0).folders;
+
+                        var output = file_system.createWriteStream('target.zip');
+                        var archive = archiver('zip');
+
+                        output.on('close', function () {
+                            console.log(archive.pointer() + ' total bytes');
+                            console.log('archiver has been finalized and the output file descriptor has closed.');
+                        });
+
+                        archive.on('error', function(err){
+                            throw err;
+                        });
+
+                        archive.pipe(output);
+                        archive.bulk([
+                            { expand: true, cwd: 'source', src: ['**'], dest: 'source'}
+                        ]);
+                        archive.finalize();
                     })
                     
                     // [ Trigger the input being clicked ]
