@@ -4,8 +4,13 @@
 
 (function($,window,document){
 	$.request = function(verb,path,data){
-		var json = JSON.stringify(data);
-
+        var isFileUpload = data instanceof FormData;
+        var json = null;
+        
+        if(!isFileUpload){
+            json = JSON.stringify(data);
+        }
+		
 		// [ Format slashes ]
 		var host = $.request.host;
 		if(host[host.length - 1] == "/"){
@@ -27,8 +32,10 @@
 		xhr.setRequestHeader("x-screen-width", $(window).width());
 		xhr.setRequestHeader("x-screen-height", $(window).height());
 
-		xhr.setRequestHeader("Content-Type", "application/octet-stream");
-
+        if(!isFileUpload){
+            xhr.setRequestHeader("Content-Type", "application/json");
+        }
+		
 		var handler = {
 			 doneCallback:function(){}
 			,failCallback:function(){}
@@ -43,7 +50,6 @@
 		}
 
 		xhr.onload = function(event){
-			// debugger;
 			try{
 				var json = event.currentTarget.responseText;
                 var data = JSON.parse(json);
@@ -62,7 +68,12 @@
 			handler.failCallback(event);
 		}
 
-		xhr.send(json);
+        if(isFileUpload){
+            xhr.send(data);
+        }else{
+            xhr.send(json);
+        }
+		
 
 		return handler;
 	}

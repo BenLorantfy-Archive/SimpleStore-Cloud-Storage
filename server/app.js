@@ -14,10 +14,10 @@ var winston = require('winston');           // Logging
 var Promise = require('promise');           // Promises
 var zip     = require('zip-folder');        // Zip Folders
 var formidable = require('formidable');     // Formidable
-    
+
 // [ Config file with db credentials ]
 var config  = require("./config.json");     // Config file with database username and password
-var database_manager = require("./database_manager");
+//var database_manager = require("./database_manager");
 
 // [ Start server ]
 console.log("Starting server...");
@@ -55,11 +55,17 @@ var mysqlErrors = {
 }
 
 var base = path.join(path.dirname(require.main.filename),'UploadedFiles');
-
-app.use(express.static(path.join(__dirname, 'public')));
+var tempDir = path.join(path.dirname(require.main.filename),'TempFiles');
 
 // [ Middleware to get the request body ]
 app.use (function(req, res, next) {
+    // [ Skip json grabbing for uploads ]
+    if(req.path == "/upload"){
+        next();
+        return;
+    }
+    
+    console.log("HAIII");
     var json='';
     req.setEncoding('utf8');
     req.on('data', function(chunk) { 
@@ -67,14 +73,17 @@ app.use (function(req, res, next) {
     });
 
     req.on('end', function() {    
+        console.log(json);
         if(json == ""){
             next();
         }else{
             try{
+                console.log("REALLYY??")
                 // [ If valid json, set req.body ]
                 var data = JSON.parse(json);
                 if(isPlainObj(data)){
                     req.body = data;
+                    console.log("CRAZZY");
                     next();
                 }else{
                     // [ Tell user json was naughty ]
@@ -297,6 +306,8 @@ function generateUserPath(username){
 // [ Accepts a request to create a token for a user ]
 // - Only grants token if username and password match
 app.post("/token",function(req,res){
+    console.log("wtf");
+    
     // [ Make sure body is present ]
     if(!req.body) return res.end(error("Missing json body", errors.MISSING_BODY));
     
@@ -485,37 +496,28 @@ app.get("/files",function(req,res){
     
 });
 
-app.post("/files", function(req,res){
-    console.log(req.body);
-
-    // create an incoming form object
+app.post("/upload", function(req,res){[
+    // [ Get form data ]
     var form = new formidable.IncomingForm();
-
-    // specify that we want to allow the user to upload multiple files in a single request
     form.multiples = true;
-
-    // store all uploads in the /uploads directory
-    form.uploadDir = path.join(__dirname, '/UploadedFiles/greg2');
-
-    // every time a file has been uploaded successfully,
-    // rename it to it's orignal name
+    form.uploadDir = tempDir;
+    
+    // [ Rename uploaded file ]
     form.on('file', function(field, file) {
-        console.log('rename: ' + file.path);
-        fs.rename(file.path, path.join(form.uploadDir, file.name));
+        var userPath = generateUserPath(req.user.username);    
+        var newPath = path.join(userPath, file.name);  
+        fs.rename(file.path, newPath);
     });
 
-    // log any errors that occur
     form.on('error', function(err) {
         console.log('An error has occured: \n' + err);
     });
 
-    // once all the files have been uploaded, send a response to the client
     form.on('end', function() {
         console.log('success');
         res.end('success');
     });
 
-    // parse the incoming request containing the form data
     form.parse(req);
 })
 
@@ -756,6 +758,6 @@ app.post("/download", function (req, res) {
 (function(port){
     app.listen(port, function () {
         console.log('Web server listening on port ' + port + '...');
-        database_manager.test();
+//        database_manager.test();
     });    
 })(1337);

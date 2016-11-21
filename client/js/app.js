@@ -92,7 +92,7 @@ app.controller('MainController', function($scope, $compile) {
                                 }
                             });*/
 
-                            $.request("POST","/files", formData).done(function(root){
+                            $.request("POST","/upload", formData).done(function(root){
                                 console.log('Upload done');
                             });
                         }
