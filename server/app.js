@@ -14,7 +14,7 @@ var winston = require('winston');           // Logging
 var Promise = require('promise');           // Promises
 var EasyZip = require('easy-zip').EasyZip;  // Zip Files
 var formidable = require('formidable');     // Formidable
-var unzip   = require('unzip2');             // Unzip module
+var unzip   =      require('unzip2');             // Unzip module
 
 // [ Config file with db credentials ]
 var config  = require("./config.json");     // Config file with database username and password
@@ -272,7 +272,7 @@ function isPathValid(filepath){
 
     var parsedPath = path.parse(filepath);
 
-    if(parsedPath.dir.includes('..') || parsedPath.dir.includes('.') || parsedPath.dir == "\\") {
+    if(parsedPath.dir.includes('..') || parsedPath.dir.includes('.')) {
         return false;
     }
 
