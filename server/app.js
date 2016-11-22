@@ -415,7 +415,7 @@ function getFiles(basePath,folderPath,item){
                             "name":file
                         ,"isFolder":false
                         ,"isFile":true
-                        ,"path":childPath.replace("\\", "/")
+                        ,"path":childPath.replace(/\\/g, "/")
                         ,children:[]
                     };          
 
@@ -483,7 +483,7 @@ app.get("/files",function(req,res){
     
     // [ Generate user path ]
     var userPath = path.join(base,username);
-    var folderPath = patsterh.join(userPath,"/");
+    var folderPath = path.join(userPath,"/");
 
 
     getFiles(userPath,folderPath,root).then(function(){
@@ -567,7 +567,7 @@ app.post("/uploadDirectory", function(req,res){
                 "isFolder":true
                 ,"isFile":false
                 ,"name":path.basename(endPath)
-                ,"path":endPath.replace(userPath,"").replace("\\", "/")
+                ,"path":endPath.replace(userPath,"").replace(/\\/g, "/")
                 ,children:[]
             };
 
