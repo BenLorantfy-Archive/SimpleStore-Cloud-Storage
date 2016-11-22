@@ -3,7 +3,7 @@
 // Version: 2.0
 
 (function($,window,document){
-	$.request = function(verb,path,data,metadata){
+	$.request = function(verb,path,data,metadata,binary){
         var isFileUpload = data instanceof FormData;
         var json = null;
         
@@ -36,6 +36,10 @@
         if(!isFileUpload){
             xhr.setRequestHeader("Content-Type", "application/json");
         }
+        
+        if(binary){
+            xhr.responseType = 'blob';
+        }
 		
 		var handler = {
 			 doneCallback:function(){}
@@ -50,20 +54,39 @@
 			}
 		}
 
-		xhr.onload = function(event){
-			try{
-				var json = event.currentTarget.responseText;
-                var data = JSON.parse(json);
-                if(data.error){
-                    handler.failCallback(data);
-                }else{
-                    handler.doneCallback(data);
+//        (function(binary){
+            xhr.onload = function(event){
+                if(binary){
+                    var blob = this.response;
+                    var blobUrl = null;
+                    try{
+                        blobUrl = window.URL.createObjectURL(blob);
+                        handler.doneCallback(blobUrl);
+                    }catch(e){
+                        console.error("window.URL.createObjectURL failed:" + e);
+                        blobUrl = null;
+                        handler.failCallback();
+                    }                 
+                    
+                    return;
                 }
-				
-			}catch(ex){
-				handler.failCallback(event);
-			}
-		}
+                
+                try{
+                    var json = event.currentTarget.responseText;
+                    var data = JSON.parse(json);
+                    if(data.error){
+                        handler.failCallback(data);
+                    }else{
+                        handler.doneCallback(data);
+                    }
+
+                }catch(ex){
+                    handler.failCallback(event);
+                }
+            };
+            
+//        })(false);
+
 
 		xhr.onerror = function(event){
 			handler.failCallback(event);
