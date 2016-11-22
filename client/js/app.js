@@ -193,8 +193,24 @@ app.controller('MainController', function($scope, $compile) {
                 }else{
                     // [ Add all the files ]
                     for(var i = 0; i < files.length; i++){
-                        folder.children.push(files[i]);                    
-                        renderItem(col,folder,files[i]);
+                        folder.children.push(files[i]);     
+                        // here
+                        var el = createTreeItem(files[i],col);
+    
+                        var folders = $("tree-item[path='" + folder.path.replace(/'/g,"\\'") + "']")
+                        folders.each(function(){
+                            var clone = el.clone();
+                            var folder = $(this);
+                            folder.children(".itemContainer").children(".children").append(clone);
+                            
+                            $compile(clone)($scope);
+                        })                        
+                        
+                        $compile(el)($scope);
+                        // here
+
+                        
+//                        renderItem(col,folder,files[i]);
                     }
                 }
                 
