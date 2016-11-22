@@ -26,31 +26,31 @@ Because this file is tracked by .git, the change history can also act as a recor
 | Actual Results (Mannual) | Client does not create an ed directory because it already exists, but ed is stil able to login                                                                                                | 
 | Extra Notes              | Automated unit test and manual test both pass                                                                                   | 
 
-| Test Name                | E-001 &#x2717;                                                                                                                                                                                                      | 
+| Test Name                | E-001 &#10004;                                                                                                                                                                                                      | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Try to create a directory under user ed                                                                                                                                                                  | 
 | Test Procedure           | **1.** Use your client application to try and create a new directory in ed’s space. **2.** Try to create a directory called myStuff **3.** Record your observations of the client application / web-service in the Extra Notes | 
 | Expected Results         | Client should trap the exception and report directory exists                                                                                                                                               | 
-| Last Tested Date         | Nov 18th 2016                                                                                                  | 
+| Last Tested Date         | Nov 22nd 2016                                                                                                  | 
 | Last Tested Version      | 0.0.0                                                                                                   | 
 | Last Tested Commit       | N/A                                                                                                   | 
 | Last Tested By           | [BenLorantfy](https://github.com/BenLorantfy)                                                                                                   | 
-| Actual Results           |                                                                                                                                                                                                            | 
+| Actual Results           | Client should trap the exception and report directory exists                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                            | 
-| Actual Results (Unit)    |                                                                                                                                                                                                            | 
-| Actual Results (Mannual) |                                                                                                                                                                                                            | 
+| Actual Results (Unit)    | Client should trap the exception and report directory exists                                                                                                                                                                                                            | 
+| Actual Results (Mannual) | Client should trap the exception and report directory exists                                                                                                                                                                                                          | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
-| Test Name                | E-002                                                                                                                                                                                               | 
+| Test Name                | E-002 `&#10004;`                                                                                                                                                                                              | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Try to upload a file to \ed\myStuff                                                                                                                                                                 | 
 | Test Procedure           | **1.** Locate the file CLIENT\throwAway\tmp\garbage\readme in your CLIENT space **2.** Upload it and save it to the same filename in the \ed\myStuff directory **3.** Record your observations of the client application / web-service in the Extra Notes 
 | Expected Results         | Client should trap exception not allowed to write (directory is read-only) and report back                                                                                                                                               | 
 | Last Tested Date         |                                                                                                 | 
 | Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
+| Last Tested Commit       | cbcc8e9                                                                                                | 
 | Last Tested By           |                                                                                            | 
-| Actual Results           |                                                                                                                                                                                                            | 
+| Actual Results           | Upload takes place (no error given)                                                                                                                                                                                                           | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
 | Actual Results (Mannual) |                                                                                                                                                                                                            | 
@@ -63,9 +63,9 @@ Because this file is tracked by .git, the change history can also act as a recor
 | Expected Results         | Client should trap exception of file sharing and report back                                                                                                                                               | 
 | Last Tested Date         |                                                                                                 | 
 | Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
+| Last Tested Commit       |  cbcc8e9                                                                                               | 
 | Last Tested By           |                                                                                            | 
-| Actual Results           |                                                                                                                                                                                                            | 
+| Actual Results           | Upload takes place (no error given)                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
 | Actual Results (Mannual) |                                                                                                                                                                                                            | 
