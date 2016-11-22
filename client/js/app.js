@@ -138,6 +138,34 @@ app.controller('MainController', function($scope, $compile) {
             }
         });
 
+        function renderItem(col,folder,item){
+            var el = $("<tree-item></tree-item>");
+                    
+            var attrs = getAttrsFromData(item);
+            el.attr(attrs);
+        
+            // [ Append to all the other open folders ]
+            var folders = $("tree-item[path='" + folder.path.replace(/'/g,"\\'") + "']");
+            folders.each(function(){
+                var clone = el.clone();
+                $(this).append(clone);  
+                
+                $compile(clone)($scope);
+            });
+            
+            // [ Append to column ]
+            col.append(el);
+            $compile(el)($scope);
+        }
+
+        function renderFolder(col,folder,item){
+            renderItem(col,folder,files);
+            for (i = 0; i < files.children.length; ++i){
+                folder.children.push(files.children[i]);                    
+                renderFolder(col,folder,files.children[i]);
+            }
+        }
+
         function uploadFiles(path,formData,col){
             var colIndex = col.closest(".fileColumnHolder").index();
             var folder = columnStack[colIndex];
@@ -146,32 +174,22 @@ app.controller('MainController', function($scope, $compile) {
                 console.log('Upload done');
                 disableUpload = false;
                 
-                // [ Add all the files ]
-                for(var i = 0; i < files.length; i++){
-                    folder.children.push(files[i]);                    
-                    
-                    var el = $("<tree-item></tree-item>");
-                    
-                    var attrs = getAttrsFromData(files[i]);
-                    el.attr(attrs);
-                
-                    // [ Append to all the other open folders ]
-                    var folders = $("tree-item[path='" + folder.path.replace(/'/g,"\\'") + "']");
-                    folders.each(function(){
-                        var clone = el.clone();
-                        $(this).append(clone);
-                        
-                        $compile(clone)($scope);
-                    });
-                    
-                    // [ Append to column ]
-                    col.append(el);
+                if (!files.length){
+                    var el = createTreeItem(files,col);
+
+                    // [ Compile all the branches ]
                     $compile(el)($scope);
+                }else{
+                    // [ Add all the files ]
+                    for(var i = 0; i < files.length; i++){
+                        folder.children.push(files[i]);                    
+                        renderItem(col,folder,files[i]);
+                    }
                 }
+                
             }).fail(function(root){
                 console.log('Upload failed');
                 disableUpload = false;
-
             });
         }
         

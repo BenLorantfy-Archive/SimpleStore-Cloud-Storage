@@ -415,7 +415,7 @@ function getFiles(basePath,folderPath,item){
                             "name":file
                         ,"isFolder":false
                         ,"isFile":true
-                        ,"path":childPath.replace("\\", "/")
+                        ,"path":childPath.replace(/\\/g, "/")
                         ,children:[]
                     };          
 
@@ -566,7 +566,7 @@ app.post("/uploadDirectory", function(req,res){
                 "isFolder":true
                 ,"isFile":false
                 ,"name":path.basename(endPath)
-                ,"path":endPath.replace(userPath,"").replace("\\", "/")
+                ,"path":endPath.replace(userPath,"").replace(/\\/g, "/")
                 ,children:[]
             };
 
