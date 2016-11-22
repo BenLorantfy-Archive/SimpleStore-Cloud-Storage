@@ -97,6 +97,23 @@ app.controller('MainController', function($scope, $compile) {
                     $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();                    
 
                     showMessage("Delete complete", true);
+                    
+                    // Hide all the columns with the path
+                    // here
+                    var folderPath = item.path.replace(/\//g," / ");
+                    var header = $("");
+                    $(".fileColumnHeader").each(function(){
+                        if($(this).text().trim() == folderPath.trim()){
+                            header = $(this);
+                            return false;
+                        }        
+                    });
+                    
+                    if(header.length > 0){
+                        var headerCol = header.closest(".fileColumnHolder");
+                        headerCol.nextAll().remove();
+                        headerCol.remove();
+                    }
                 });
 
                 $("#selectionTools").hide();               
