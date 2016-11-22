@@ -184,6 +184,15 @@ app.controller('MainController', function($scope, $compile) {
                     }
 
                     var el = createTreeItem(files,col);
+                    
+                    var folders = $("tree-item[path='" + folder.path.replace(/'/g,"\\'") + "']")
+                    folders.each(function(){
+                        var clone = el.clone();
+                        var folder = $(this);
+                        folder.children(".itemContainer").children(".children").append(clone);
+
+                        $compile(clone)($scope);
+                    })                    
 
                     // [ Compile all the branches ]
                     $compile(el)($scope);
