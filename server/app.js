@@ -60,7 +60,8 @@ var tempDir = path.join(path.dirname(require.main.filename),'TempFiles');
 // [ Middleware to get the request body ]
 app.use (function(req, res, next) {
     // [ Skip json check for uploads ]
-    if(req.path == "/upload"){
+    if(req.path == "/upload" 
+       || req.path == "/uploadDirectory"){
         next();
         return;
     }
@@ -516,6 +517,10 @@ app.post("/upload", function(req,res){
         })
     });
 
+    form.on('field', function(name, field) {
+        console.log('Got a field:', name);
+    })
+
     form.on('error', function(err) {
         console.log('An error has occured: \n' + err);
     });
@@ -528,14 +533,14 @@ app.post("/upload", function(req,res){
     form.parse(req);
 });
 
-app.post("uploadDirectory", function(req,res){
+app.post("/uploadDirectory", function(req,res){
     // [ Get form data ]
     var form = new formidable.IncomingForm();
     form.multiples = true;
     form.uploadDir = tempDir;
 
     var selectedPath = req.headers["metadata"] + "";
-
+    
     // [ Keeps track of every file that was sucessfully uploaded ]
     var uploadedFiles = [];
     
@@ -552,6 +557,10 @@ app.post("uploadDirectory", function(req,res){
             ,isFolder:false
         })
     });
+
+    form.on('field', function(name, field) {
+        console.log('Got a field:', name);
+    })
 
     form.on('error', function(err) {
         console.log('An error has occured: \n' + err);

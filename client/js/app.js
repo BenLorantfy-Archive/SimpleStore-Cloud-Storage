@@ -138,11 +138,11 @@ app.controller('MainController', function($scope, $compile) {
             }
         });
 
-        function uploadFiles(formData,col){
+        function uploadFiles(path,formData,col){
             var colIndex = col.closest(".fileColumnHolder").index();
             var folder = columnStack[colIndex];
 
-            $.request("POST","/upload", formData, folder.path).done(function(files){
+            $.request("POST",path, formData, folder.path).done(function(files){
                 console.log('Upload done');
                 disableUpload = false;
                 
@@ -213,11 +213,11 @@ app.controller('MainController', function($scope, $compile) {
                                 
                                 smalltalk.prompt('File upload', 'Select file name for upload.', file.name).then(function(value) {
                                     formData.append('uploads[]', file, value);
-                                    uploadFiles(formData,col);
+                                    uploadFiles("/upload",formData,col);
                                 }, function() {
 
                                     formData.append('uploads[]', file, file.name);
-                                    uploadFiles(formData,col);
+                                    uploadFiles("/upload",formData,col);
                                 });
 
                                 return;
@@ -231,9 +231,8 @@ app.controller('MainController', function($scope, $compile) {
                                 formData.append('uploads[]', file, file.name);
                             }
 
-                            uploadFiles(formData,col);
+                            uploadFiles("/upload",formData,col);
                         }else{
-                            // Nothing was selected OR cancel
                             // Nothing was selected OR cancel
                             disableUpload = false;
                         }
@@ -264,7 +263,8 @@ app.controller('MainController', function($scope, $compile) {
                         var files = $(this).get(0).files;
                         var filePath = files[0].path;
                         
-                        var tempPath = __dirname + '\\TempFiles\\archive' + randomNumber() + '.zip';
+                        var archiveName = 'archive' + randomNumber() + '.zip';
+                        var tempPath = __dirname + '\\TempFiles\\' + archiveName;
                         var output = fs.createWriteStream(tempPath);
 
                         var archive = archiver('zip');
@@ -272,6 +272,13 @@ app.controller('MainController', function($scope, $compile) {
                         output.on('close', function() {
                             console.log(archive.pointer() + ' total bytes');
                             console.log('archiver has been finalized and the output file descriptor has closed.');
+
+                            fs.readFile(tempPath, function (err, data) {
+                                var blob = new Blob([JSON.stringify([0,1,2])], {type : 'application/json'});
+                                var fileOfBlob = new File([data], 'aFileName.json');
+                                formData.append("uploads[]", fileOfBlob, archiveName)
+                                uploadFiles("/uploadDirectory",formData,col);
+                            });
                         });
 
                         archive.on('error', function(err) {
