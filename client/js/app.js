@@ -565,7 +565,7 @@ app.controller('MainController', function($scope, $compile) {
     // Stack of column data from right to left
 //    var columnStack = [];
     window.columnStack = [];
-    
+
     function renderFilesScreen(){
         
         // [ Sample File Tree ]
