@@ -834,8 +834,7 @@ app.controller('MainController', function($scope, $compile) {
                 }
             }
         });
-        
-        
+
         // [ Login user ]
         $("#login").click(function(){
             var credentials = {};
@@ -851,8 +850,13 @@ app.controller('MainController', function($scope, $compile) {
             })
             
 
-        });       
-    
+        });
+
+        // [ Logout user ]
+        $("#logout").click(function(){
+            expandLoginWindow();
+        });
+
         // [ Toggle Signup UI ]
         $("#openSignUp,#openLogIn").click(function(){
             $("#signupUI").toggle();
@@ -907,6 +911,45 @@ app.controller('MainController', function($scope, $compile) {
                 }
             })           
         }
+
+        function expandLoginWindow(){
+            $.request.token = null;
+            $("#username").val("");
+            $("#password").val("");
+
+
+            var w = $(window).width();
+            var h = $(window).height();
+
+            $("#filesScreen").fadeToggle("fast",function(){
+                $("#fileColumnHolder").empty();
+                columnStack = [];
+                $("#loginScreen").fadeToggle("fast");
+                renderFilesScreen();
+            });
+
+            var currentCenterX = window.screenX + $(window).width() / 2;
+            var currentCenterY = window.screenY + $(window).height() / 2;
+            var lastWidth = w;
+            var lastHeight = h;
+            $({ t:0 }).animate({ t: 1},{
+                duration:300
+                ,step:function(t){
+                    var newWidth = w + t*(500 - w);
+                    var newHeight = h + t*(600 - h);
+                    var deltaWidth = newWidth - lastWidth;
+                    var deltaHeight = newHeight - lastHeight;
+
+                    // This is pretty laggy:
+                    //                    window.moveTo(window.screenX - deltaWidth/2, window.screenY - deltaHeight/2);
+                    window.resizeTo(newWidth, newHeight);
+
+                    lastWidth = newWidth;
+                    lastHeight = newHeight;
+                }
+            })
+        }
+
     })();
  
 });

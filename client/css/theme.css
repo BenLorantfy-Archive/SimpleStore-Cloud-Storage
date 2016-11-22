@@ -246,6 +246,13 @@ input[type="button"],button{
     display: none;
 }
 
+
+#logout{
+	position:absolute;
+	bottom:20px;
+	left:50%;
+	margin-left:-60px;
+	}
 body.selectingFolder .fileColumn:hover{
     background-color:rgba(40,145,255,0.28);
 }
