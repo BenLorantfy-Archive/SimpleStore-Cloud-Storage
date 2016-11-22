@@ -507,7 +507,13 @@ app.post("/upload", function(req,res){
     // [ Rename uploaded file ]
     form.on('file', function(field, file) {
         var userPath = generateUserPath(req.user.username);    
-        var newPath = path.join(userPath, path.join(selectedPath, file.name));  
+        var newPath = path.join(userPath, path.join(selectedPath, file.name));
+        if (fs.existsSync(newPath)){
+            console.log("Files already exists:" + newPath);
+            fs.unlink(file.path);
+            return;
+        }
+
         fs.rename(file.path, newPath);
         
         uploadedFiles.push({
@@ -551,14 +557,16 @@ app.post("/uploadDirectory", function(req,res){
         var newPath = path.join(userPath, path.join(selectedPath, file.name));  
         fs.rename(file.path, newPath);
 
-        var endPath = newPath.substring(0, newPath.lastIndexOf('.')) + "\\";
+        var endPath = newPath.substring(0, newPath.lastIndexOf('.'));
         if (!fs.existsSync(endPath)){
             fs.mkdirSync(endPath);
         }else{
             console.log('ERROR: folder already exists')
             res.json({error:"Folder already exists"});
+            fs.unlink(newPath);
+            return;
         }
-
+        
         var stream = unzip.Extract({ path: endPath });
         stream.on('close',function(){
             fs.unlink(newPath);
@@ -571,7 +579,7 @@ app.post("/uploadDirectory", function(req,res){
                 ,children:[]
             };
 
-            getFiles(userPath,endPath,root).then(function(){
+            getFiles(userPath,endPath + "\\",root).then(function(){
                 console.log('folder structure uploade success');
                 res.json(root);
             }).catch(function(ex){
