@@ -14,7 +14,7 @@ var winston = require('winston');           // Logging
 var Promise = require('promise');           // Promises
 var EasyZip = require('easy-zip').EasyZip;  // Zip Files
 var formidable = require('formidable');     // Formidable
-var unzip   = require('unzip2');             // Unzip module
+var unzip   =      require('unzip2');             // Unzip module
 
 // [ Convert fs.readdir to promise using function ]
 var readdir = Promise.denodeify(require('fs').readdir);
@@ -31,7 +31,7 @@ console.log("Starting server...");
 var db = knex(config);
 
 // [ attach log file ]
-winston.add(winston.transports.File, { filename: 'server_logs.log' });
+winston.add(winston.transports.File, { filename: 'server_logs.log','timestamp':function() {return new Date().toLocaleString(); } });
 
 // [ Create the express app ]
 var app = express();
@@ -52,7 +52,7 @@ var errors = {
     ,BAD_DIR_PATH:12
     ,REQUEST_FAILED:13
     ,USER_ALREADY_EXISTS:14
-    ,DIR_EXISTS:-17
+    ,DIR_EXISTS:-4075
     ,DIR_EXISTS_WHILE_RENAMING:-66
     ,DUPLICATE_KEY:1062
 }
@@ -276,7 +276,7 @@ function isPathValid(filepath){
 
     var parsedPath = path.parse(filepath);
 
-    if(parsedPath.dir.includes('..') || parsedPath.dir.includes('.') || parsedPath.dir == "\\") {
+    if(parsedPath.dir.includes('..') || parsedPath.dir.includes('.')) {
         return false;
     }
 
@@ -415,7 +415,7 @@ function getFiles(basePath,folderPath,item){
                             "name":file
                         ,"isFolder":false
                         ,"isFile":true
-                        ,"path":childPath
+                        ,"path":childPath.replace("\\", "/")
                         ,children:[]
                     };          
 
@@ -511,7 +511,7 @@ app.post("/upload", function(req,res){
         
         uploadedFiles.push({
              name:file.name
-            ,path:path.join(selectedPath, file.name)
+            ,path:path.join(selectedPath, file.name).replace("\\", "/")
             ,isFile:true
             ,isFolder:false
         })
@@ -566,7 +566,7 @@ app.post("/uploadDirectory", function(req,res){
                 "isFolder":true
                 ,"isFile":false
                 ,"name":path.basename(endPath)
-                ,"path":endPath.replace(userPath,"")
+                ,"path":endPath.replace(userPath,"").replace("\\", "/")
                 ,children:[]
             };
 
