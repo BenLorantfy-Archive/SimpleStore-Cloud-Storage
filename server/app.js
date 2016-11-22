@@ -410,7 +410,7 @@ app.get("/files",function(req,res){
     }
     
     // [ Generate user path ]
-    var user_path = path.join(base,username);
+    var user_path = path.join(base,username).replace(/\\/g, "/");
     
     // [ Convert fs.readdir to promise using function ]
     var readdir = Promise.denodeify(require('fs').readdir);
@@ -419,7 +419,7 @@ app.get("/files",function(req,res){
     // [ Recurssive function to search file tree ]
     (function getFiles(folder,item){
         return new Promise(function (fulfill, reject){
-            var folderPath = path.join(user_path,folder);
+            var folderPath = path.join(user_path,folder).replace(/\\/g, "/");
             readdir(folderPath).then(function(files){
                 if(files){
                     if(files.length == 0){
@@ -435,21 +435,21 @@ app.get("/files",function(req,res){
                              "name":file
                             ,"isFolder":false
                             ,"isFile":true
-                            ,"path":path.join(folder,file).replace("\\", "/")
+                            ,"path":path.join(folder,file).replace(/\\/g, "/")
                             ,children:[]
                         };          
 
                         item.children.push(childItem);
 
                         (function(childItem,file){
-                            stat(path.join(folderPath,file)).then(function(stat){
+                            stat(path.join(folderPath,file).replace(/\\/g, "/")).then(function(stat){
 
 
                                 childItem.isFolder = stat.isDirectory();
                                 childItem.isFile = !childItem.isFolder;
 
                                 if(childItem.isFolder){
-                                    var newFolder = path.join(folder,file);
+                                    var newFolder = path.join(folder,file).replace(/\\/g, "/");
 
                                     getFiles(newFolder,childItem)
                                         .then(function(){
@@ -510,7 +510,7 @@ app.post("/upload", function(req,res){
         
         uploadedFiles.push({
              name:file.name
-            ,path:path.join(selectedPath, file.name).replace("\\", "/")
+            ,path:path.join(selectedPath, file.name).replace(/\\/g, "/")
             ,isFile:true
             ,isFolder:false
         })
@@ -551,7 +551,7 @@ app.post("/uploadDirectory", function(req,res){
         
         uploadedFiles.push({
              name:file.name
-            ,path:path.join(selectedPath, file.name).replace("\\", "/")
+            ,path:path.join(selectedPath, file.name).replace(/\\/g, "/")
             ,isFile:true
             ,isFolder:false
         })
