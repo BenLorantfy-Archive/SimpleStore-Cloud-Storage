@@ -48,7 +48,7 @@ var errors = {
     ,BAD_DIR_PATH:12
     ,REQUEST_FAILED:13
     ,USER_ALREADY_EXISTS:14
-    ,DIR_EXISTS:-17
+    ,DIR_EXISTS:-4075
     ,DIR_EXISTS_WHILE_RENAMING:-66
     ,DUPLICATE_KEY:1062
 }
@@ -435,7 +435,7 @@ app.get("/files",function(req,res){
                              "name":file
                             ,"isFolder":false
                             ,"isFile":true
-                            ,"path":path.join(folder,file)
+                            ,"path":path.join(folder,file).replace("\\", "/")
                             ,children:[]
                         };          
 
@@ -510,7 +510,7 @@ app.post("/upload", function(req,res){
         
         uploadedFiles.push({
              name:file.name
-            ,path:path.join(selectedPath, file.name)
+            ,path:path.join(selectedPath, file.name).replace("\\", "/")
             ,isFile:true
             ,isFolder:false
         })
@@ -551,7 +551,7 @@ app.post("/uploadDirectory", function(req,res){
         
         uploadedFiles.push({
              name:file.name
-            ,path:path.join(selectedPath, file.name)
+            ,path:path.join(selectedPath, file.name).replace("\\", "/")
             ,isFile:true
             ,isFolder:false
         })
