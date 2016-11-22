@@ -56,6 +56,7 @@ app.controller('MainController', function($scope, $compile) {
                 }
             }
             
+            showMessage("Download complete", true);
            
             a.click();
             
@@ -95,6 +96,7 @@ app.controller('MainController', function($scope, $compile) {
                     // [ remove all the elements from the DOM ]
                     $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();                    
 
+                    showMessage("Delete complete", true);
                 });
 
                 $("#selectionTools").hide();               
@@ -528,19 +530,21 @@ app.controller('MainController', function($scope, $compile) {
             children = folder.children;
         }
         
-        for(var i = 0; i < children.length; i++){
-            var item = {};
-            if(path == children[i].path){
-                item = children[i];
-                
-                item.parent = folder;
-                return item;
-            }
+        if(children){
+            for(var i = 0; i < children.length; i++){
+                var item = {};
+                if(path == children[i].path){
+                    item = children[i];
+                    
+                    item.parent = folder;
+                    return item;
+                }
 
-            if(item = findItemByPath(children[i],path)){
-                return item;
+                if(item = findItemByPath(children[i],path)){
+                    return item;
+                }
             }
-        }                
+        }                      
 
         return false;
     }
@@ -914,7 +918,7 @@ function showMessage(message, success){
     $("#messageBox").removeClass("success").removeClass("error");
     $("#messageBox").addClass(success ? "success" : "error");
 
-    $("#messageBox").html(success ? "Successful" : message);
+    $("#messageBox").html(message);
     $("#messageBox").animate({marginTop: "0px", opacity: "1"}, 600, "easeOutCubic", function(){
         $("#messageBox").delay(2000).animate({marginTop: "-100px", opacity: "0"}, 600, "easeInCubic", function(){
             $("#messageBox").html("");

@@ -247,7 +247,7 @@ input[type="button"],button{
 }
 
 body.selectingFolder .fileColumn:hover{
-    background-color:rgba(40,145,255,0.08);
+    background-color:rgba(40,145,255,0.28);
 }
 
 #uploadMessage{
