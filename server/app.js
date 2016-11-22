@@ -14,6 +14,7 @@ var winston = require('winston');           // Logging
 var Promise = require('promise');           // Promises
 var EasyZip = require('easy-zip').EasyZip;  // Zip Files
 var formidable = require('formidable');     // Formidable
+var unzip   = require('unzip2');             // Unzip module
 
 // [ Config file with db credentials ]
 var config  = require("./config.json");     // Config file with database username and password
@@ -554,6 +555,14 @@ app.post("/uploadDirectory", function(req,res){
             ,isFile:true
             ,isFolder:false
         })
+
+        var endPath = newPath.substring(0, newPath.lastIndexOf('.'))
+        if (!fs.existsSync(endPath)){
+            fs.mkdirSync(endPath);
+        }
+
+        fs.createReadStream(newPath).pipe(unzip.Extract({ path: endPath }));
+        fs.unlink(newPath);
     });
 
     form.on('field', function(name, field) {

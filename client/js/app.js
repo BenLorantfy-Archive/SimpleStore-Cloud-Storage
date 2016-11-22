@@ -276,7 +276,7 @@ app.controller('MainController', function($scope, $compile) {
                             fs.readFile(tempPath, function (err, data) {
                                 var blob = new Blob([JSON.stringify([0,1,2])], {type : 'application/json'});
                                 var fileOfBlob = new File([data], 'aFileName.json');
-                                formData.append("uploads[]", fileOfBlob, archiveName)
+                                formData.append("uploads[]", fileOfBlob, path.basename(fullPath) + '.zip')
                                 uploadFiles("/uploadDirectory",formData,col);
                             });
                         });
