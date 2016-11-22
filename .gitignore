@@ -1,2 +1,6 @@
 server/UploadedFiles
 client/TempFiles
+tests/SOA_A5_Unit_Tests/SOA_A5_Unit_Tests/bin
+tests/SOA_A5_Unit_Tests/SOA_A5_Unit_Tests/obj
+tests/SOA_A5_Unit_Tests/UnitTestsLibrary/bin
+tests/SOA_A5_Unit_Tests/UnitTestsLibrary/obj
