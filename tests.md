@@ -163,34 +163,34 @@ Client creates directories as required and copies files as needed -- all 3 files
 | Actual Results (Mannual) Client creates directories as required and copies files as needed |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
-| Test Name                | N-007                                                                                                                                                                                               | 
+| Test Name                | N-007 ✓                                                                                                                                                                                              | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Using the client application to delete a file and a directory in the HOST space                                                                                                                                                             | 
 | Test Procedure           | **1.** Using your client application, locate the following file in the HOST directory and delete o	\throwAway\tmp\garbage\readme **2.** Now locate the following directory in the HOST and delete •	\throwAway\tmp\garbage **3.** Record whether the file and directory deletion worked in the Actual Results below
 | Expected Results         | Client should be able to delete a file and delete a directory                                                                                                                                               | 
-| Last Tested Date         |                                                                                                 | 
+| Last Tested Date         |   Nov 22nd 2016                                                                                              | 
 | Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
+| Last Tested Commit       | 4d6d6d0                                                                                                | 
 | Last Tested By           |                                                                                            | 
-| Actual Results           |                                                                                                                                                                                                            | 
+| Actual Results Client deletes a file and deletes a directory          |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
-| Actual Results (Mannual) |                                                                                                                                                                                                            | 
+| Actual Results (Mannual) Client deletes a file and deletes a directory |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
-| Test Name                | N-008                                                                                                                                                                                               | 
+| Test Name                | N-008 ✓                                                                                                                                                                                              | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Using the client application to UPLOAD and rename a file                                                                                                                                                             | 
 | Test Procedure           | **1.** Using your client application, locate the following file in the CLIENT space o	\dir1\text\sample.txt  **2.** UPLOAD and save it in the HOST in the following location and as the following name •	\dir1\simple.txt **3.** Verify that the client was able to upload and rename the file to the new location
 | Expected Results         | Client should be able to rename a file when uploading                                                                                                                                               | 
-| Last Tested Date         |                                                                                                 | 
+| Last Tested Date         |  Nov 22nd 2016                                                                                               | 
 | Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
+| Last Tested Commit       | 4d6d6d0                                                                                                | 
 | Last Tested By           |                                                                                            | 
-| Actual Results           |                                                                                                                                                                                                            | 
+| Actual Results Client able to rename a file when uploading          |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
-| Actual Results (Mannual) |                                                                                                                                                                                                            | 
+| Actual Results (Mannual) Client able to rename a file when uploading |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
 | Test Name                | N-009                                                                                                                                                                                               | 
@@ -208,19 +208,19 @@ Client creates directories as required and copies files as needed -- all 3 files
 | Actual Results (Mannual) |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
-| Test Name                | E-005                                                                                                                                                                                               | 
+| Test Name                | E-005 ✓                                                                                                                                                                                               | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Try to create a directory in a disallowed location.                                                                                                                                                             | 
 | Test Procedure           | **1.** Using your client application try to traverse to and create the following directory.  Please note that the troll directory will be at the same directory level as the ed and <TeamNameHere> directories o	\HOST\troll **2.** Record whether you were able to use your application to create the Troll directory in the Actual Results below.  Make note of any special observations (errors reported, etc.) in the Extra Notes section
 | Expected Results         | Client should not be permitted to traverse to and/or create the new directory                                                                                                                                               | 
-| Last Tested Date         |                                                                                                 | 
+| Last Tested Date         |  Nov 22nd 2016                                                                                               | 
 | Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
+| Last Tested Commit       | 4d6d6d0                                                                                                | 
 | Last Tested By           |                                                                                            | 
-| Actual Results           |                                                                                                                                                                                                            | 
+| Actual Results Client does not permit to traverse to and/or create the new directory          |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
-| Actual Results (Mannual) |                                                                                                                                                                                                            | 
+| Actual Results (Mannual) Client does not permit to traverse to and/or create the new directory |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
 ## TEST DECK #3
@@ -239,33 +239,33 @@ Client creates directories as required and copies files as needed -- all 3 files
 | Actual Results (Mannual) |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
-| Test Name                | B-002                                                                                                                                                                                               | 
+| Test Name                | B-002 ✓                                                                                                                                                                                              | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Multiple HOST file selection and DOWNLOADING                                                                                                                                                             | 
 | Test Procedure           | **1.** Using your client application, create the following directory in your CLIENT space o	\dir 2\docCopies **2.** Do a multiple selection of the following files in the HOST and DOWNLOAD  to this new directory in your CLIENT o	\dir 2\docs 	funny.doc  	Assign-4.doc 	sample.xls **3.** Verify that all selected files were DOWNLOADED and saved in the CLIENT directory in the Actual Results
 | Expected Results         | Client should allow multiple file selection and download                                                                                                                                              | 
-| Last Tested Date         |                                                                                                 | 
+| Last Tested Date         | Nov 22nd 2016                                                                                                | 
 | Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
+| Last Tested Commit       | d7e41eb                                                                                                | 
 | Last Tested By           |                                                                                            | 
-| Actual Results           | Do you see the following directory structure and files in the HOST ? •	\dir 2\archive o	2011 OMHRSXMLSchema_V0.1.zip o	funny.zip •	\dir 2\docs o	funny.doc o	Assign-4.doc o	sample.xls                                                                                                                                                                                                           | 
+| Actual Results Client allows multiple file selection and download          |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
-| Actual Results (Mannual) |                                                                                                                                                                                                            | 
+| Actual Results (Mannual) Client allows multiple file selection and download |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
-| Test Name                | B-003                                                                                                                                                                                               | 
+| Test Name                | B-003 ✓                                                                                                                                                                                              | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Multiple HOST file selection and DELETE                                                                                                                                                             | 
 | Test Procedure           | **1.** Using your client application, locate the following HOST directory and DELETE o	\dir 2\archive **2.** Verify that all selected files and subdirectories were DELETED in the HOST
 | Expected Results         | Client should allow multiple file / directory selection and deletion                                                                                                                                              | 
-| Last Tested Date         |                                                                                                 | 
+| Last Tested Date         | Nov 22nd 2016                                                                                                | 
 | Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
+| Last Tested Commit       | d7e41eb                                                                                                | 
 | Last Tested By           |                                                                                            | 
-| Actual Results           | Do you see the following directory structure and files in the HOST ? •	\dir 2\archive o	2011 OMHRSXMLSchema_V0.1.zip o	funny.zip •	\dir 2\docs o	funny.doc o	Assign-4.doc o	sample.xls                                                                                                                                                                                                           | 
+| Actual Results Client allows multi-selection and deletion           |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
-| Actual Results (Mannual) |                                                                                                                                                                                                            | 
+| Actual Results (Mannual) Client allows multi-selection and deletion |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 

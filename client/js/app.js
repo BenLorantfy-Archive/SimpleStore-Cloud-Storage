@@ -179,6 +179,9 @@ app.controller('MainController', function($scope, $compile) {
 
                     // [ Compile all the branches ]
                     $compile(el)($scope);
+                    
+                    // [ Add to parent ]
+                    columnStack[colIndex].children.push(files);
                 }else{
                     // [ Add all the files ]
                     for(var i = 0; i < files.length; i++){
@@ -792,9 +795,12 @@ app.controller('MainController', function($scope, $compile) {
             
         })
         
+        var selectingFolder = false;
         $("#upload").click(function(){
-            alert("Please right-click the column you want to upload to");
-        })
+            selectingFolder = true;
+            $("body").addClass("selectingFolder");
+           // alert("Please right-click the column you want to upload to");
+        });
     })();
 
     (function loginEvents(){
