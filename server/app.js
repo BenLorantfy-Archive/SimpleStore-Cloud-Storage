@@ -54,7 +54,7 @@ var mysqlErrors = {
     DUPLICATE_KEY:1062
 }
 
-var base = path.join(path.dirname(require.main.filename),'UploadedFiles');
+var base = path.join(path.dirname(require.main.filename),config.basepath);
 var tempDir = path.join(path.dirname(require.main.filename),'TempFiles');
 
 // [ Middleware to get the request body ]
@@ -873,14 +873,14 @@ app.post("/download", function (req, res) {
         path.normalize(full_path);
 
         if(fs.existsSync(full_path)) {
-            //if item is a file, donit zip it, just send to client
+            //if item is a file, dont zip it, just send to client
             if (fs.statSync(full_path).isFile()) {
                 res.download(full_path, function (err) {
                     if (err) {
                         //res.end(error(err.message), errors.REQUEST_FAILED);
-                        error(err.message);
+                        return error(err.message);
                     } else {
-                        success('download successful');
+                        return success('download successful');
                     }
                 });
                 // if its a folder, zip it
@@ -890,8 +890,7 @@ app.post("/download", function (req, res) {
                     .generateNodeStream({type: 'nodebuffer', streamFiles: true})
                     .pipe(res)
                     .on('finish', function () {
-                        success('zip written successful');
-                        //res.download(path.join(generateUserPath(username), 'out.zip'));
+                        return success('zip written successful');
                     });
             }
         } else {
@@ -925,7 +924,6 @@ app.post("/download", function (req, res) {
         .pipe(res)
         .on('finish', function () {
             console.log("zip written.");
-            //res.download(path.join(generateUserPath(username), 'out.zip'));
         });
     }
 });
