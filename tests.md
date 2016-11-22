@@ -16,20 +16,20 @@ Because this file is tracked by .git, the change history can also act as a recor
 | Test Name                | N-001 &#10004;                                                                                    | 
 |--------------------------|---------------------------------------------------------------------------------------------------| 
 | Test Description         | Try to log in as an existing user                                                                 | 
-| Test Procedure           | **1.** Login as user Sean **2.** Record your Actual Results to indicate whether a Sean directory exists in HOST | 
-| Expected Results         | Client should not create remote Sean directory, but allow login                                   | 
+| Test Procedure           | **1.** Login as user ed **2.** Record your Actual Results to indicate whether a ed directory exists in HOST | 
+| Expected Results         | Client should not create remote ed directory, but allow login                                   | 
 | Last Tested Date         | Nov 20th 2016                                                                                                  | 
 | Last Tested Version      | 0.0.0                                                                                                   | 
 | Last Tested Commit       | 12372ca                                                                                                  | 
 | Last Tested By           | [BenLorantfy](https://github.com/BenLorantfy)                                                                                                   | 
-| Actual Results (Unit)    |                                                                                                   | 
-| Actual Results (Mannual) | Client does not create a Sean directory because it already exists, but Sean is stil able to login                                                                                                | 
-| Extra Notes              | Unit test hasn't been created yet but able to test manually                                                                                                  | 
+| Actual Results (Unit)    | Client does not create an ed directory because it already exists, but ed is stil able to login                                                                                                   | 
+| Actual Results (Mannual) | Client does not create an ed directory because it already exists, but ed is stil able to login                                                                                                | 
+| Extra Notes              | Automated unit test and manual test both pass                                                                                   | 
 
 | Test Name                | E-001 &#x2717;                                                                                                                                                                                                      | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
-| Test Description         | Try to create a directory under user Sean                                                                                                                                                                  | 
-| Test Procedure           | **1.** Use your client application to try and create a new directory in Sean’s space. **2.** Try to create a directory called myStuff **3.** Record your observations of the client application / web-service in the Extra Notes | 
+| Test Description         | Try to create a directory under user ed                                                                                                                                                                  | 
+| Test Procedure           | **1.** Use your client application to try and create a new directory in ed’s space. **2.** Try to create a directory called myStuff **3.** Record your observations of the client application / web-service in the Extra Notes | 
 | Expected Results         | Client should trap the exception and report directory exists                                                                                                                                               | 
 | Last Tested Date         | Nov 18th 2016                                                                                                  | 
 | Last Tested Version      | 0.0.0                                                                                                   | 
@@ -43,8 +43,8 @@ Because this file is tracked by .git, the change history can also act as a recor
 
 | Test Name                | E-002                                                                                                                                                                                               | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
-| Test Description         | Try to upload a file to \Sean\myStuff                                                                                                                                                                 | 
-| Test Procedure           | **1.** Locate the file CLIENT\throwAway\tmp\garbage\readme in your CLIENT space **2.** Upload it and save it to the same filename in the \Sean\myStuff directory **3.** Record your observations of the client application / web-service in the Extra Notes 
+| Test Description         | Try to upload a file to \ed\myStuff                                                                                                                                                                 | 
+| Test Procedure           | **1.** Locate the file CLIENT\throwAway\tmp\garbage\readme in your CLIENT space **2.** Upload it and save it to the same filename in the \ed\myStuff directory **3.** Record your observations of the client application / web-service in the Extra Notes 
 | Expected Results         | Client should trap exception not allowed to write (directory is read-only) and report back                                                                                                                                               | 
 | Last Tested Date         |                                                                                                 | 
 | Last Tested Version      |                                                                                                  | 
@@ -58,8 +58,8 @@ Because this file is tracked by .git, the change history can also act as a recor
 
 | Test Name                | E-003                                                                                                                                                                                               | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
-| Test Description         | Try to copy file to \Sean\yourStuff                                                                                                                                                                 | 
-| Test Procedure           | **1.** Before beginning this test – locate the file called sample.xls in the HOST\Sean\yourStuff  subdirectory **2.** Open the file in Excel™  (you may have to click the enable button to activate the spreadsheet) **3.** Now, using your client – locate the following file CLIENT\dir 2\docs\sample.xls and UPLOAD it to the \Sean\yourStuff directory – using the same name **4.** Record your observations of the client application / web-service in the Extra Notes **5.** Make sure to close Excel™ to release the file after this test has been executed
+| Test Description         | Try to copy file to \ed\yourStuff                                                                                                                                                                 | 
+| Test Procedure           | **1.** Before beginning this test – locate the file called sample.xls in the HOST\ed\yourStuff  subdirectory **2.** Open the file in Excel™  (you may have to click the enable button to activate the spreadsheet) **3.** Now, using your client – locate the following file CLIENT\dir 2\docs\sample.xls and UPLOAD it to the \ed\yourStuff directory – using the same name **4.** Record your observations of the client application / web-service in the Extra Notes **5.** Make sure to close Excel™ to release the file after this test has been executed
 | Expected Results         | Client should trap exception of file sharing and report back                                                                                                                                               | 
 | Last Tested Date         |                                                                                                 | 
 | Last Tested Version      |                                                                                                  | 
@@ -74,7 +74,7 @@ Because this file is tracked by .git, the change history can also act as a recor
 | Test Name                | E-004                                                                                                                                                                                               | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Try to create a directory in the remote location (HOST) that already exists                                                                                                                                                             | 
-| Test Procedure           | **1.** Using your client application go to the Sean directory and record what directories you see there in the “Extra Notes” section below **2.** Now try to create a directory called hiddenStuff here **3.** Record your observations of the client application / web-service in the Extra Notes
+| Test Procedure           | **1.** Using your client application go to the ed directory and record what directories you see there in the “Extra Notes” section below **2.** Now try to create a directory called hiddenStuff here **3.** Record your observations of the client application / web-service in the Extra Notes
 | Expected Results         | Client should trap exception (directory already exists) and report back                                                                                                                                               | 
 | Last Tested Date         |                                                                                                 | 
 | Last Tested Version      |                                                                                                  | 
@@ -87,19 +87,19 @@ Because this file is tracked by .git, the change history can also act as a recor
 | Extra Notes              |                                                                                                                                                                                                       | 
 
 ## TEST DECK #2
-| Test Name                | N-002                                                                                                                                                                                               | 
+| Test Name                | N-002 &#10004;                                                                                                                                                                                              | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Try to log in as new user                                                                                                                                                             | 
-| Test Procedure           | **1.** within your client application – login as a new user (forget about that Sean guy) **2.** login as a user called <TeamNameHere> (e.g. MattGregIanJohn) as instructed previously **3.** Record your Actual Results to indicate whether a <TeamNamesHere> directory exists in HOST
+| Test Procedure           | **1.** within your client application – login as a new user (forget about that ed guy) **2.** login as a user called <TeamNameHere> (e.g. MattGregIanJohn) as instructed previously **3.** Record your Actual Results to indicate whether a <TeamNamesHere> directory exists in HOST
 | Expected Results         | Client should create directory <TeamNameHere> in the HOST subdirectory and allow login                                                                                                                                               | 
-| Last Tested Date         |                                                                                                 | 
-| Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
-| Last Tested By           |                                                                                            | 
-| Actual Results           |                                                                                                                                                                                                            | 
+| Last Tested Date         | Nov 21st 2016                                                                             | 
+| Last Tested Version      | 0.0.0                                                                                            | 
+| Last Tested Commit       | 95956f7                                                                                         | 
+| Last Tested By           | [abasheer-cc](https://github.com/abasheer-cc)                                                                       | 
+| Actual Results           | Client should create directory <TeamNameHere> in the HOST subdirectory and allow login                                                                                                                                                                                                           | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
-| Actual Results (Mannual) |                                                                                                                                                                                                            | 
+| Actual Results (Mannual) | Client should create directory <TeamNameHere> in the HOST subdirectory and allow login                                                                                                                                                                                                           | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
 | Test Name                | N-003                                                                                                                                                                                               | 
@@ -210,7 +210,7 @@ Because this file is tracked by .git, the change history can also act as a recor
 | Test Name                | E-005                                                                                                                                                                                               | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Try to create a directory in a disallowed location.                                                                                                                                                             | 
-| Test Procedure           | **1.** Using your client application try to traverse to and create the following directory.  Please note that the troll directory will be at the same directory level as the Sean and <TeamNameHere> directories o	\HOST\troll **2.** Record whether you were able to use your application to create the Troll directory in the Actual Results below.  Make note of any special observations (errors reported, etc.) in the Extra Notes section
+| Test Procedure           | **1.** Using your client application try to traverse to and create the following directory.  Please note that the troll directory will be at the same directory level as the ed and <TeamNameHere> directories o	\HOST\troll **2.** Record whether you were able to use your application to create the Troll directory in the Actual Results below.  Make note of any special observations (errors reported, etc.) in the Extra Notes section
 | Expected Results         | Client should not be permitted to traverse to and/or create the new directory                                                                                                                                               | 
 | Last Tested Date         |                                                                                                 | 
 | Last Tested Version      |                                                                                                  | 
