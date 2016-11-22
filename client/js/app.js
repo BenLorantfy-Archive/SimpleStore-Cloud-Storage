@@ -776,6 +776,17 @@ app.controller('MainController', function($scope, $compile) {
 
     (function loginEvents(){
         
+        $("#username,#password,#confirmPassword").keyup(function(e){
+            if(e.keyCode == 13){
+                if($("#login").is(":visible")){
+                    $("#login").click();
+                }else{
+                    $("#signup").click();
+                }
+            }
+        });
+        
+        
         // [ Login user ]
         $("#login").click(function(){
             var credentials = {};
