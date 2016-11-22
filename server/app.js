@@ -12,7 +12,7 @@ var knex    = require("knex");              // SQL query builder
 var bcrypt  = require("bcrypt-nodejs");     // Password hashing
 var winston = require('winston');           // Logging
 var Promise = require('promise');           // Promises
-var jszip   = require('jszip');             // Zip files
+var EasyZip = require('easy-zip').EasyZip;  // Zip Files
 var formidable = require('formidable');     // Formidable
 
 // [ Config file with db credentials ]
@@ -47,11 +47,9 @@ var errors = {
     ,BAD_DIR_PATH:12
     ,REQUEST_FAILED:13
     ,USER_ALREADY_EXISTS:14
-}
-
-// [ MySQL errors ]
-var mysqlErrors = {
-    DUPLICATE_KEY:1062
+    ,DIR_EXISTS:-17
+    ,DIR_EXISTS_WHILE_RENAMING:-66
+    ,DUPLICATE_KEY:1062
 }
 
 var base = path.join(path.dirname(require.main.filename),config.basepath);
@@ -379,7 +377,7 @@ app.post("/token",function(req,res){
                 authenticate();
             })
             .catch(function(err){
-                if(err.errno == mysqlErrors.DUPLICATE_KEY){
+                if(err.errno == errors.DUPLICATE_KEY){
                     res.end(error("User already exists", errors.USER_ALREADY_EXISTS));
                 }else{
                     console.log(err);
@@ -727,13 +725,15 @@ app.post("/folders", function(req,res) {
     path.normalize(full_path);
 
     //check if parent directory exists
-    if(!fs.existsSync(path.dirname(full_path)))         return res.end(error("Parent Directory does not exist", errors.BAD_DIR_PATH));
+    if(!fs.existsSync(path.dirname(full_path))) return res.end(error("Parent Directory does not exist", errors.BAD_DIR_PATH));
 
     //create new dir
     fs.mkdir(full_path, function (data) {
         if(!data) {
             return res.end(success("Directory Created"));
-        } else {
+        } else if(data.errno == errors.DIR_EXISTS){
+            return res.end(error("Folder already exists", errors.DIR_EXISTS));
+        }else{
             return res.end(error(data.message, errors.REQUEST_FAILED));
         }
     });
@@ -841,11 +841,19 @@ app.post("/rename", function (req, res) {
 
     fs.rename(full_path, new_full_path ,function (err) {
         if(err){
-            res.end(error(err.message, errors.REQUEST_FAILED));
+            if(err.errno == errors.DIR_EXISTS_WHILE_RENAMING){
+                res.end(error("Folder already exists", errors.DIR_EXISTS));
+            }else{
+                res.end(error(err.message, errors.REQUEST_FAILED));
+            }
         } else {
             fs.stat(new_full_path, function(err, stats){
                 if(err){
-                    res.end(error(err.message));
+                    if(err.errno == errors.DIR_EXISTS_WHILE_RENAMING){
+                        res.end(error("Folder already exists", errors.DIR_EXISTS));
+                    }else{
+                        res.end(error(err.message, errors.REQUEST_FAILED));
+                    }
                 } else {
                     if (stats.isFile()) {
                         res.end(success("File Renamed"));
@@ -868,7 +876,7 @@ app.post("/download", function (req, res) {
     if (!data.items) return res.end(error("Missing path", errors.MISSING_FIELD));
     var items = data.items;
 
-    var zip = new jszip();
+    var zip = new EasyZip();
 
     //check number of items to zip
     if(items.length == 1){
@@ -894,13 +902,10 @@ app.post("/download", function (req, res) {
                 });
                 // if its a folder, zip it
             } else {
-                zip.folder(path.basename(items[0]), full_path);
-                zip
-                    .generateNodeStream({type: 'nodebuffer', streamFiles: true})
-                    .pipe(res)
-                    .on('finish', function () {
-                        return success('zip written successful');
-                    });
+                zip.zipFolder(full_path,function(){
+                   // zip.writeToFile('folderall.zip');
+                    zip.writeToResponse(res,'attachment.zip');
+                });
             }
         } else {
             return res.end(error("Invalid path", errors.BAD_DIR_PATH));
@@ -919,21 +924,22 @@ app.post("/download", function (req, res) {
 
             if(fs.existsSync(full_path)) {
                 if (fs.statSync(full_path).isFile()) {
-                    zip.file(path.basename(items[i]), full_path);
+
+                    zip.addFile(path.basename(items[i]),full_path,function(){
+                        //zip.writeToFile('folderall.zip');
+                        zip.writeToResponse(res,'attachment.zip');
+                    });
                 } else {
-                    zip.folder(path.basename(items[i]), full_path);
+
+                    zip.zipFolder(full_path,function(){
+                        //zip.writeToFile('folderall.zip');
+                        zip.writeToResponse(res,'attachment.zip');
+                    });
                 }
             } else{
                 return res.end(error("Invalid path", errors.BAD_DIR_PATH));
             }
         }
-
-        zip
-        .generateNodeStream({type: 'nodebuffer', streamFiles: true})
-        .pipe(res)
-        .on('finish', function () {
-            console.log("zip written.");
-        });
     }
 });
 

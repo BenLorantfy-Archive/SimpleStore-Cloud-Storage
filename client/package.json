@@ -17,6 +17,7 @@
     "jszip": ">0.0.0"
   },
   "dependencies": {
-    "archiver": "^1.2.0"
+     "archiver": "^1.2.0"
+    ,"smalltalk": ">0.0.0"
   }
 }
