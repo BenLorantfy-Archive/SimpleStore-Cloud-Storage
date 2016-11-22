@@ -838,16 +838,16 @@ app.post("/rename", function (req, res) {
 
     //make sure parent paths are identical
     if(path.dirname(full_path) != path.dirname(new_full_path)) return res.end(error("renamed path does not match old path", errors.BAD_DIR_PATH));
-
-    fs.rename(full_path, new_full_path ,function (err) {
-        if(err){
-            if(err.errno == errors.DIR_EXISTS_WHILE_RENAMING){
-                res.end(error("Folder already exists", errors.DIR_EXISTS));
-            }else{
-                res.end(error(err.message, errors.REQUEST_FAILED));
+    
+    fs.stat(new_full_path, function(err, stat) {
+        if(err == null) {
+            if (stat.isFile()) {
+                res.end(error("File already exists",errors.DIR_EXISTS));
+            } else {
+                res.end(error("Folder already exists",errors.DIR_EXISTS));
             }
         } else {
-            fs.stat(new_full_path, function(err, stats){
+            fs.rename(full_path, new_full_path ,function (err) {
                 if(err){
                     if(err.errno == errors.DIR_EXISTS_WHILE_RENAMING){
                         res.end(error("Folder already exists", errors.DIR_EXISTS));
@@ -855,15 +855,27 @@ app.post("/rename", function (req, res) {
                         res.end(error(err.message, errors.REQUEST_FAILED));
                     }
                 } else {
-                    if (stats.isFile()) {
-                        res.end(success("File Renamed"));
-                    } else {
-                        res.end(success("Folder Renamed"));
-                    }
+                    fs.stat(new_full_path, function(err, stats){
+                        if(err){
+                            if(err.errno == errors.DIR_EXISTS_WHILE_RENAMING){
+                                res.end(error("Folder already exists", errors.DIR_EXISTS));
+                            }else{
+                                res.end(error(err.message, errors.REQUEST_FAILED));
+                            }
+                        } else {
+                            if (stats.isFile()) {
+                                res.end(success("File Renamed"));
+                            } else {
+                                res.end(success("Folder Renamed"));
+                            }
+                        }
+                    });
                 }
-            });
+            });            
         }
     });
+    
+
 });
 
 app.post("/download", function (req, res) {
