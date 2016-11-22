@@ -485,6 +485,7 @@ app.get("/files",function(req,res){
     var userPath = path.join(base,username);
     var folderPath = path.join(userPath,"/");
 
+
     getFiles(userPath,folderPath,root).then(function(){
         res.json(root);
     }).catch(function(ex){
@@ -511,7 +512,7 @@ app.post("/upload", function(req,res){
         
         uploadedFiles.push({
              name:file.name
-            ,path:path.join(selectedPath, file.name).replace("\\", "/")
+            ,path:path.join(selectedPath, file.name).replace(/\\/g, "/")
             ,isFile:true
             ,isFolder:false
         })
