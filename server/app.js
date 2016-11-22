@@ -916,7 +916,8 @@ app.post("/download", function (req, res) {
             } else {
                 zip.zipFolder(full_path,function(){
                    // zip.writeToFile('folderall.zip');
-                    zip.writeToResponse(res,'attachment.zip');
+
+                  return zip.writeToResponse(res,'attachment');
                 });
             }
         } else {
@@ -938,20 +939,18 @@ app.post("/download", function (req, res) {
                 if (fs.statSync(full_path).isFile()) {
 
                     zip.addFile(path.basename(items[i]),full_path,function(){
-                        //zip.writeToFile('folderall.zip');
-                        zip.writeToResponse(res,'attachment.zip');
                     });
                 } else {
 
                     zip.zipFolder(full_path,function(){
-                        //zip.writeToFile('folderall.zip');
-                        zip.writeToResponse(res,'attachment.zip');
+
                     });
                 }
             } else{
                 return res.end(error("Invalid path", errors.BAD_DIR_PATH));
             }
         }
+        zip.writeToResponse(res,'attachment');
     }
 });
 
