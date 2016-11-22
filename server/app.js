@@ -47,11 +47,9 @@ var errors = {
     ,BAD_DIR_PATH:12
     ,REQUEST_FAILED:13
     ,USER_ALREADY_EXISTS:14
-}
-
-// [ MySQL errors ]
-var mysqlErrors = {
-    DUPLICATE_KEY:1062
+    ,DIR_EXISTS:-17
+    ,DIR_EXISTS_WHILE_RENAMING:-66
+    ,DUPLICATE_KEY:1062
 }
 
 var base = path.join(path.dirname(require.main.filename),'UploadedFiles');
@@ -378,7 +376,7 @@ app.post("/token",function(req,res){
                 authenticate();
             })
             .catch(function(err){
-                if(err.errno == mysqlErrors.DUPLICATE_KEY){
+                if(err.errno == errors.DUPLICATE_KEY){
                     res.end(error("User already exists", errors.USER_ALREADY_EXISTS));
                 }else{
                     console.log(err);
@@ -720,13 +718,15 @@ app.post("/folders", function(req,res) {
     path.normalize(full_path);
 
     //check if parent directory exists
-    if(!fs.existsSync(path.dirname(full_path)))         return res.end(error("Parent Directory does not exist", errors.BAD_DIR_PATH));
+    if(!fs.existsSync(path.dirname(full_path))) return res.end(error("Parent Directory does not exist", errors.BAD_DIR_PATH));
 
     //create new dir
     fs.mkdir(full_path, function (data) {
         if(!data) {
             return res.end(success("Directory Created"));
-        } else {
+        } else if(data.errno == errors.DIR_EXISTS){
+            return res.end(error("Folder already exists", errors.DIR_EXISTS));
+        }else{
             return res.end(error(data.message, errors.REQUEST_FAILED));
         }
     });
@@ -834,11 +834,19 @@ app.post("/rename", function (req, res) {
 
     fs.rename(full_path, new_full_path ,function (err) {
         if(err){
-            res.end(error(err.message, errors.REQUEST_FAILED));
+            if(err.errno == errors.DIR_EXISTS_WHILE_RENAMING){
+                res.end(error("Folder already exists", errors.DIR_EXISTS));
+            }else{
+                res.end(error(err.message, errors.REQUEST_FAILED));
+            }
         } else {
             fs.stat(new_full_path, function(err, stats){
                 if(err){
-                    res.end(error(err.message));
+                    if(err.errno == errors.DIR_EXISTS_WHILE_RENAMING){
+                        res.end(error("Folder already exists", errors.DIR_EXISTS));
+                    }else{
+                        res.end(error(err.message, errors.REQUEST_FAILED));
+                    }
                 } else {
                     if (stats.isFile()) {
                         res.end(success("File Renamed"));

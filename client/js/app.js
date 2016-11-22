@@ -390,18 +390,17 @@ app.controller('MainController', function($scope, $compile) {
                 // [ Change file info ]
                 item.name = newName;
                 
-
-                
-                // [ Change the path ]
+                var newPath = null;
                 if(parent.path == "/"){
-                    item.path = "/" + newName;
+                    newPath = "/" + newName;
                 }else{
-                    item.path = parent.path + "/" + newName;
-                }            
+                    newPath = parent.path + "/" + newName;
+                }  
+                
                 
                 if(item.new && item.isFolder){
                     var data = {
-                        path:item.path
+                        path:newPath
                     };
                     
                     $.request("POST","/folders",data).done(function(){
@@ -409,8 +408,9 @@ app.controller('MainController', function($scope, $compile) {
                         
                         // [ Not new anymore ]
                         delete item.new;
-                    }).fail(function(){
-                        alert("Folder creation failed");
+                    }).fail(function(err){
+                        alert(err.message);
+                        $(this).focus();
                     });
                 }else{
                     var data = {
@@ -422,13 +422,60 @@ app.controller('MainController', function($scope, $compile) {
                     $.request("POST","/rename",data).done(function(){
                         updateUI();
                     }).fail(function(err){
-                        alert("Failed to rename file: " + err);
+                        alert(err.message);
                     })                    
                 }
                 
             
                 
                 function updateUI(){
+                    
+                    // [ Update column headers if renamed folder ]
+                    if(item.isFolder){
+                        for(var i = 0; i < columnStack.length; i++){
+                            var colItem = columnStack[i];
+                            if(colItem.path == item.path){
+                                $(".fileColumnHolder").eq(i).find(".fileColumnHeader").text(newPath.replace(/\//g," / "));
+                            }
+                        }
+                    }
+                    
+                    // [ Change the path ]
+                    item.path = newPath;
+                    
+                    // [ Re-compute all the child paths ]
+                    function renameChildrenPaths(item){
+                        if(!item.children) return;
+                        
+                        for(var i = 0; i < item.children.length; i++){
+                            var child = item.children[i];
+                            var newPath = item.path + "/" + child.name;
+                            
+                            
+                            var els = $("tree-item[path='" + child.path.replace(/'/g,"\\'") + "']");
+                            els.each(function(){
+                                var el = $(this);
+                                el.attr("path",newPath);
+                                
+                                var headerPath = child.path.replace(/\//g," / ").trim();
+                                
+                                $(".fileColumnHeader").each(function(){
+                                    var text = $(this).text().trim();
+                                    if(text == headerPath){
+                                        $(this).text(newPath.replace(/\//g," / "))
+                                    }
+                                })
+                                
+                            })
+                            
+                            
+                            child.path = newPath;
+                            
+                            renameChildrenPaths(child);
+                        }
+                    }
+                    renameChildrenPaths(item);
+                  
                     // [ Update UI with new name ]
                     var els = $("tree-item[path='" + path.replace(/'/g,"\\'") + "']");
                     els.each(function(){
@@ -439,7 +486,9 @@ app.controller('MainController', function($scope, $compile) {
                     })
 
                     // [ Hide all the textboxes ]
-                    $("tree-item").removeClass("editing");                    
+                    $("tree-item").removeClass("editing");       
+                    
+
                 }
                 
 
