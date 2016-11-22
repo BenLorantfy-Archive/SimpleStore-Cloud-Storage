@@ -215,5 +215,12 @@ input[type="button"],button{
 }
 
 body.selectingFolder .fileColumn:hover{
-    background-color:rgba(40,145,255,0.05);
+    background-color:rgba(40,145,255,0.08);
+}
+
+#uploadMessage{
+    color:grey;
+    margin-top:10px;
+    font-size:14px;
+    display: none;
 }

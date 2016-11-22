@@ -795,12 +795,28 @@ app.controller('MainController', function($scope, $compile) {
             
         })
         
-        var selectingFolder = false;
         $("#upload").click(function(){
-            selectingFolder = true;
-            $("body").addClass("selectingFolder");
-           // alert("Please right-click the column you want to upload to");
+            if($("body").hasClass("selectingFolder")){
+                $("body").removeClass("selectingFolder");
+                $("#upload").val("Upload"); 
+                $("#uploadMessage").hide();                
+            }else{
+                $("body").addClass("selectingFolder");
+                $("#upload").val("Cancel");
+                $("#uploadMessage").show();         
+            }
         });
+
+        $("body").on("click",".fileColumn",function(e){
+            if($("body").hasClass("selectingFolder")){
+                $( this ).contextMenu( { x: e.offsetX, y: e.offsetY } );
+                $("body").removeClass("selectingFolder");
+                $("#upload").val("Upload");
+                $("#uploadMessage").hide();
+            }         
+        });
+        
+
     })();
 
     (function loginEvents(){
