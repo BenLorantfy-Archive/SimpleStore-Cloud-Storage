@@ -6,5 +6,5 @@
     "password" : "root",
     "database" : "simplestore"
   },
-  "basepath" : "UploadedFiles123"
+  "basepath" : "UploadedFiles"
 }
