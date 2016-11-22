@@ -27,7 +27,7 @@ console.log("Starting server...");
 var db = knex(config);
 
 // [ attach log file ]
-winston.add(winston.transports.File, { filename: 'server_logs.log' });
+winston.add(winston.transports.File, { filename: 'server_logs.log','timestamp':function() {return new Date().toLocaleString(); } });
 
 // [ Create the express app ]
 var app = express();
