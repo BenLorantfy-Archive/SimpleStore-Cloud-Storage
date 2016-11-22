@@ -4,7 +4,7 @@
 // Set the $.request host
 $.request.host = "http://localhost:1337";
 
-var file_system = require('fs');            // File System
+var fs = require('fs');            // File System
 var archiver = require('archiver');         // Archiver
 var smalltalk = require('smalltalk');       // Smalltalk (Prompt window)
 var jszip   = require('jszip');             // Zip files
@@ -265,39 +265,30 @@ app.controller('MainController', function($scope, $compile) {
                         var filePath = files[0].path;
                         
                         var tempPath = __dirname + '\\TempFiles\\archive' + randomNumber() + '.zip';
-                        var output = file_system.createWriteStream(tempPath);
-                        
-                        /*var archive = archiver('zip');
-//
-//                        output.on('close', function () {
-//                            console.log(archive.pointer() + ' total bytes');
-//                            console.log('archiver has been finalized and the output file descriptor has closed.');
-//                        });
-//
-//                        archive.on('error', function(err){
-//                            throw err;
-//                        });
-//
-//                        archive.pipe(output);
-                        archive.directory(path);
-//                            { expand: true, cwd: 'source', src: ['**'], dest: 'source'}
-                            { expand: true, cwd: 'source', src: [path], dest: 'source'}
-//                        archive.finalize();
-                        archive.finalize();*/
-//                        archive.on('error', function(err){
-                        var fullPath = path.normalize(filePath);
-                        var zip = new jszip();
-                        zip.folder("archive", fullPath);
-                        zip
-                            .generateNodeStream({type: 'nodebuffer', streamFiles: true})
-                            .pipe(output)
-                            .on('finish', function () {
-                                console.log("zip written.");
-                                //res.download(path.join(generateUserPath(username), 'out.zip'));
-                            });
-                    // [ Trigger the input being clicked ]
+                        var output = fs.createWriteStream(tempPath);
+
+                        var archive = archiver('zip');
+
+                        output.on('close', function() {
+                            console.log(archive.pointer() + ' total bytes');
+                            console.log('archiver has been finalized and the output file descriptor has closed.');
+                        });
+
+                        archive.on('error', function(err) {
+                            throw err;
+                        });
+
+                        archive.pipe(output);
+                        fullPath = path.normalize(filePath)
+
+                        archive.bulk([
+                            { expand: true, cwd: fullPath, src: ['**/*'] }
+                        ]);
+
+                        archive.finalize();
                     })
 
+                    // [ Trigger the input being clicked ]
                     input.click();
                 }},
                 newFolder: {name: "New Folder", callback: function(key, opt){ 
