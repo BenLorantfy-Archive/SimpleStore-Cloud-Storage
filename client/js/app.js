@@ -708,9 +708,14 @@ app.controller('MainController', function($scope, $compile) {
             $("#selectedFilesHolder").empty();
             $(".workingItem:not(.secondary)").each(function(){
                 var name = $(this).attr("name");
+                var isFolder = $(this).attr("is-folder") == "true";
+                var type = "text";
+                if(isFolder){
+                    type = "folder";
+                }
                 $("#selectedFilesHolder").append(
                     "<div class='selectedFile'>" + 
-                        "<img class='folder' src='img/icons/folder.png'/>" + 
+                        "<img class='folder' src='img/icons/" + type + ".png'/>" + 
                         "<span class='selectedFileName'>" + name + "</span>" +
                     "</div>"
                 );
