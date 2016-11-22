@@ -379,6 +379,7 @@ app.controller('MainController', function($scope, $compile) {
                 var item = findItemByPath(columnStack[colIndex],path,true);
                 var parent = item.parent;
                 var oldPath = item.path;
+                var oldName = item.name;
                 
                 // [ Change file info ]
                 item.name = newName;
@@ -406,17 +407,23 @@ app.controller('MainController', function($scope, $compile) {
                         $(this).focus();
                     });
                 }else{
-                    var data = {
-                         path:oldPath
-                        ,newname:newName
-                    };
+                    if(oldName == newName){
+                        $("tree-item").removeClass("editing"); 
+                    }else{
+                        var data = {
+                             path:oldPath
+                            ,newname:newName
+                        };
+
+                        // [ Send request to server to rename it ]
+                        $.request("POST","/rename",data).done(function(){
+                            updateUI();
+                        }).fail(function(err){
+                            alert(err.message);
+                        })                         
+                    }
                     
-                    // [ Send request to server to rename it ]
-                    $.request("POST","/rename",data).done(function(){
-                        updateUI();
-                    }).fail(function(err){
-                        alert(err.message);
-                    })                    
+                   
                 }
                 
             
@@ -760,6 +767,10 @@ app.controller('MainController', function($scope, $compile) {
             $(this).closest(".itemNameContainer").addClass("selected");
             
             
+        })
+        
+        $("#upload").click(function(){
+            alert("Please right-click the column you want to upload to");
         })
     })();
 
