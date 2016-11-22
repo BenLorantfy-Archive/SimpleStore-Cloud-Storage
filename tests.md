@@ -163,34 +163,34 @@ Client creates directories as required and copies files as needed -- all 3 files
 | Actual Results (Mannual) Client creates directories as required and copies files as needed |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
-| Test Name                | N-007                                                                                                                                                                                               | 
+| Test Name                | N-007 ✓                                                                                                                                                                                              | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Using the client application to delete a file and a directory in the HOST space                                                                                                                                                             | 
 | Test Procedure           | **1.** Using your client application, locate the following file in the HOST directory and delete o	\throwAway\tmp\garbage\readme **2.** Now locate the following directory in the HOST and delete •	\throwAway\tmp\garbage **3.** Record whether the file and directory deletion worked in the Actual Results below
 | Expected Results         | Client should be able to delete a file and delete a directory                                                                                                                                               | 
-| Last Tested Date         |                                                                                                 | 
+| Last Tested Date         |   Nov 22nd 2016                                                                                              | 
 | Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
+| Last Tested Commit       | 4d6d6d0                                                                                                | 
 | Last Tested By           |                                                                                            | 
-| Actual Results           |                                                                                                                                                                                                            | 
+| Actual Results Client deletes a file and deletes a directory          |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
-| Actual Results (Mannual) |                                                                                                                                                                                                            | 
+| Actual Results (Mannual) Client deletes a file and deletes a directory |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
-| Test Name                | N-008                                                                                                                                                                                               | 
+| Test Name                | N-008 ✓                                                                                                                                                                                              | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Using the client application to UPLOAD and rename a file                                                                                                                                                             | 
 | Test Procedure           | **1.** Using your client application, locate the following file in the CLIENT space o	\dir1\text\sample.txt  **2.** UPLOAD and save it in the HOST in the following location and as the following name •	\dir1\simple.txt **3.** Verify that the client was able to upload and rename the file to the new location
 | Expected Results         | Client should be able to rename a file when uploading                                                                                                                                               | 
-| Last Tested Date         |                                                                                                 | 
+| Last Tested Date         |  Nov 22nd 2016                                                                                               | 
 | Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
+| Last Tested Commit       | 4d6d6d0                                                                                                | 
 | Last Tested By           |                                                                                            | 
-| Actual Results           |                                                                                                                                                                                                            | 
+| Actual Results Client able to rename a file when uploading          |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
-| Actual Results (Mannual) |                                                                                                                                                                                                            | 
+| Actual Results (Mannual) Client able to rename a file when uploading |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
 | Test Name                | N-009                                                                                                                                                                                               | 
@@ -208,19 +208,19 @@ Client creates directories as required and copies files as needed -- all 3 files
 | Actual Results (Mannual) |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
-| Test Name                | E-005                                                                                                                                                                                               | 
+| Test Name                | E-005 ✓                                                                                                                                                                                               | 
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | Test Description         | Try to create a directory in a disallowed location.                                                                                                                                                             | 
 | Test Procedure           | **1.** Using your client application try to traverse to and create the following directory.  Please note that the troll directory will be at the same directory level as the ed and <TeamNameHere> directories o	\HOST\troll **2.** Record whether you were able to use your application to create the Troll directory in the Actual Results below.  Make note of any special observations (errors reported, etc.) in the Extra Notes section
 | Expected Results         | Client should not be permitted to traverse to and/or create the new directory                                                                                                                                               | 
-| Last Tested Date         |                                                                                                 | 
+| Last Tested Date         |  Nov 22nd 2016                                                                                               | 
 | Last Tested Version      |                                                                                                  | 
-| Last Tested Commit       |                                                                                                 | 
+| Last Tested Commit       | 4d6d6d0                                                                                                | 
 | Last Tested By           |                                                                                            | 
-| Actual Results           |                                                                                                                                                                                                            | 
+| Actual Results Client does not permit to traverse to and/or create the new directory          |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                            | 
 | Actual Results (Unit)    |                                                                                                                                                                                                            | 
-| Actual Results (Mannual) |                                                                                                                                                                                                            | 
+| Actual Results (Mannual) Client does not permit to traverse to and/or create the new directory |                                                                                                                                                                                                            | 
 | Extra Notes              |                                                                                                                                                                                                       | 
 
 ## TEST DECK #3
