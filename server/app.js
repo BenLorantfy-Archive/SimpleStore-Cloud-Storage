@@ -16,6 +16,10 @@ var EasyZip = require('easy-zip').EasyZip;  // Zip Files
 var formidable = require('formidable');     // Formidable
 var unzip   = require('unzip2');             // Unzip module
 
+// [ Convert fs.readdir to promise using function ]
+var readdir = Promise.denodeify(require('fs').readdir);
+var stat    = Promise.denodeify(require('fs').stat);
+
 // [ Config file with db credentials ]
 var config  = require("./config.json");     // Config file with database username and password
 //var database_manager = require("./database_manager");
@@ -392,12 +396,80 @@ app.post("/token",function(req,res){
     }
 });
 
+// [ Recurssive function to search file tree ]
+function getFiles(basePath,folderPath,item){
+    return new Promise(function (fulfill, reject){
+        readdir(folderPath).then(function(files){
+            if(files){
+                if(files.length == 0){
+                    fulfill();
+                    return;
+                }
+
+                var numDone = 0;
+                for(var i = 0; i < files.length; i++){
+                    var file = files[i];
+
+                    var childPath = path.join(folderPath,file).replace(basePath,"");
+                    var childItem = {
+                            "name":file
+                        ,"isFolder":false
+                        ,"isFile":true
+                        ,"path":childPath
+                        ,children:[]
+                    };          
+
+                    item.children.push(childItem);
+
+                    (function(childItem,file){
+                        stat(path.join(folderPath,file)).then(function(stat){
+
+                            childItem.isFolder = stat.isDirectory();
+                            childItem.isFile = !childItem.isFolder;
+
+                            if(childItem.isFolder){
+                                var newFolder = path.join(folderPath,file);
+
+                                getFiles(basePath,newFolder,childItem)
+                                    .then(function(){
+
+                                        numDone++;
+                                        if(numDone == files.length){
+                                            fulfill();
+                                        }
+                                    })
+                                    .catch(function(err){
+                                        reject(err);
+                                    });
+                            }else{
+                                numDone++;
+                                if(numDone == files.length){
+                                    fulfill();
+                                }
+                            }
+
+
+                        }).catch(function(err){
+                            reject(err);
+                        })                      
+                    })(childItem,file);
+
+                }
+            }else{
+                fulfill();
+            }
+        }).catch(function(err){
+            reject(err); 
+        }); 
+    });
+
+};
+
 app.get("/files",function(req,res){
     var username = req.user.username;
     
     var root = {
-         "name":"root"
-        ,"isFolder":true
+        "isFolder":true
         ,"isFile":false
         ,"name":""
         ,"path":"/"
@@ -410,83 +482,12 @@ app.get("/files",function(req,res){
     }
     
     // [ Generate user path ]
-    var user_path = path.join(base,username);
-    
-    // [ Convert fs.readdir to promise using function ]
-    var readdir = Promise.denodeify(require('fs').readdir);
-    var stat    = Promise.denodeify(require('fs').stat);
-    
-    // [ Recurssive function to search file tree ]
-    (function getFiles(folder,item){
-        return new Promise(function (fulfill, reject){
-            var folderPath = path.join(user_path,folder);
-            readdir(folderPath).then(function(files){
-                if(files){
-                    if(files.length == 0){
-                        fulfill();
-                        return;
-                    }
+    var userPath = path.join(base,username);
+    var folderPath = path.join(userPath,"/");
 
-                    var numDone = 0;
-                    for(var i = 0; i < files.length; i++){
-                        var file = files[i];
-
-                        var childItem = {
-                             "name":file
-                            ,"isFolder":false
-                            ,"isFile":true
-                            ,"path":path.join(folder,file)
-                            ,children:[]
-                        };          
-
-                        item.children.push(childItem);
-
-                        (function(childItem,file){
-                            stat(path.join(folderPath,file)).then(function(stat){
-
-
-                                childItem.isFolder = stat.isDirectory();
-                                childItem.isFile = !childItem.isFolder;
-
-                                if(childItem.isFolder){
-                                    var newFolder = path.join(folder,file);
-
-                                    getFiles(newFolder,childItem)
-                                        .then(function(){
-
-                                            numDone++;
-                                            if(numDone == files.length){
-                                                fulfill();
-                                            }
-                                        })
-                                        .catch(function(err){
-                                            reject(err);
-                                        });
-                                }else{
-                                    numDone++;
-                                    if(numDone == files.length){
-                                        fulfill();
-                                    }
-                                }
-
-
-                            }).catch(function(err){
-                                reject(err);
-                            })                      
-                        })(childItem,file);
-
-                    }
-                }else{
-                    fulfill();
-                }
-            }).catch(function(err){
-                reject(err); 
-            }); 
-        });
-
-    })("/",root).then(function(){
+    getFiles(userPath,folderPath,root).then(function(){
         res.json(root);
-    }).catch(function(){
+    }).catch(function(ex){
         res.end(error("Couldn't find user's storage directory",errors.MISSING_DIR))
     });
 });
@@ -548,34 +549,43 @@ app.post("/uploadDirectory", function(req,res){
         var userPath = generateUserPath(req.user.username);    
         var newPath = path.join(userPath, path.join(selectedPath, file.name));  
         fs.rename(file.path, newPath);
-        
-        uploadedFiles.push({
-             name:file.name
-            ,path:path.join(selectedPath, file.name)
-            ,isFile:true
-            ,isFolder:false
-        })
 
-        var endPath = newPath.substring(0, newPath.lastIndexOf('.'))
+        var endPath = newPath.substring(0, newPath.lastIndexOf('.')) + "\\";
         if (!fs.existsSync(endPath)){
             fs.mkdirSync(endPath);
+        }else{
+            console.log('ERROR: folder already exists')
+            res.json({error:"Folder already exists"});
         }
 
-        fs.createReadStream(newPath).pipe(unzip.Extract({ path: endPath }));
-        fs.unlink(newPath);
-    });
+        var stream = unzip.Extract({ path: endPath });
+        stream.on('close',function(){
+            fs.unlink(newPath);
 
-    form.on('field', function(name, field) {
-        console.log('Got a field:', name);
-    })
+            var root = {
+                "isFolder":true
+                ,"isFile":false
+                ,"name":path.basename(endPath)
+                ,"path":endPath.replace(userPath,"")
+                ,children:[]
+            };
+
+            getFiles(userPath,endPath,root).then(function(){
+                console.log('folder structure uploade success');
+                res.json(root);
+            }).catch(function(ex){
+                res.end(error("Couldn't find user's storage directory",errors.MISSING_DIR))
+            });
+        });
+        fs.createReadStream(newPath).pipe(stream);
+    });
 
     form.on('error', function(err) {
         console.log('An error has occured: \n' + err);
     });
 
     form.on('end', function() {
-        console.log('success');
-        res.json(uploadedFiles);
+        console.log('folder upload success');
     });
 
     form.parse(req);
