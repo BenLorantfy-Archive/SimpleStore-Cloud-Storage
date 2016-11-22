@@ -172,9 +172,15 @@ app.controller('MainController', function($scope, $compile) {
 
             $.request("POST",path, formData, folder.path).done(function(files){
                 console.log('Upload done');
+                showMessage("Upload done",true);
                 disableUpload = false;
                 
                 if (!files.length){
+                    if (!files.isFolder){
+                        showMessage("Nothing was uploaded");
+                        return;
+                    }
+
                     var el = createTreeItem(files,col);
 
                     // [ Compile all the branches ]
@@ -192,7 +198,7 @@ app.controller('MainController', function($scope, $compile) {
                 
             }).fail(function(root){
                 console.log('Upload failed');
-                disableUpload = false;
+                showMessage("Upload failed");
             });
         }
         
@@ -202,9 +208,6 @@ app.controller('MainController', function($scope, $compile) {
             // define the elements of the menu
             items: {
                 uploadFiles: {name: "Upload File(s)", callback: function(key, opt){
-                    if (disableUpload){
-                        return;
-                    }
 
                     // [ Remove the old file input ]
                     $("#fileInput").remove();
@@ -262,10 +265,7 @@ app.controller('MainController', function($scope, $compile) {
                     // [ Trigger the input being clicked ]
                     input.click();
                 }},
-                uploadFolder: {name: "Upload Folder", callback: function(key, opt){ 
-                    if (disableUpload){
-                        return;
-                    }
+                uploadFolder: {name: "Upload Folder", callback: function(key, opt){
 
                     // [ Remove the old file input ]
                     $("#fileInput").remove();
@@ -890,6 +890,21 @@ app.controller('MainController', function($scope, $compile) {
     })();
  
 });
+
+function showMessage(message, success){
+    var red = "#D15854";
+    var green = "#53CE7D";
+
+    $("#messageBox").removeClass("success").removeClass("error");
+    $("#messageBox").addClass(success ? "success" : "error");
+
+    $("#messageBox").html(success ? "Successful" : message);
+    $("#messageBox").animate({marginTop: "0px", opacity: "1"}, 600, "easeOutCubic", function(){
+        $("#messageBox").delay(2000).animate({marginTop: "-100px", opacity: "0"}, 600, "easeInCubic", function(){
+            $("#messageBox").html("");
+        })
+    });
+}
 
 // [ Async load all the components ]
 // - Declutters the head tag in index.html
