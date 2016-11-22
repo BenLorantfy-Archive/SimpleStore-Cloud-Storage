@@ -899,67 +899,46 @@ app.post("/download", function (req, res) {
 
     var zip = new EasyZip();
 
-    //check number of items to zip
-    if(items.length == 1){
+    var j = 1;
+    for (var i = 0; i < items.length; i++) {
 
         //validate the requested path
-        var download_path = path.normalize(items[0]);
+        var download_path = path.normalize(items[i]);
         if (!isPathValid(download_path))   return res.end(error("Invalid path", errors.BAD_DIR_PATH));
-
         //generate full path
         var full_path = path.join(generateUserPath(username), download_path);
         path.normalize(full_path);
 
         if(fs.existsSync(full_path)) {
-            //if item is a file, dont zip it, just send to client
             if (fs.statSync(full_path).isFile()) {
-                res.download(full_path, function (err) {
-                    if (err) {
-                        //res.end(error(err.message), errors.REQUEST_FAILED);
-                        return error(err.message);
-                    } else {
-                        return success('download successful');
-                    }
-                });
-                // if its a folder, zip it
-            } else {
-                zip.zipFolder(full_path,function(){
-                   // zip.writeToFile('folderall.zip');
-
-                  return zip.writeToResponse(res,'attachment');
-                });
-            }
-        } else {
-            return res.end(error("Invalid path", errors.BAD_DIR_PATH));
-        }
-        //if multiple files/folders zip them
-    }else if(items.length > 1) {
-
-        for (var i = 0; i < items.length; i++) {
-
-            //validate the requested path
-            var download_path = path.normalize(items[i]);
-            if (!isPathValid(download_path))   return res.end(error("Invalid path", errors.BAD_DIR_PATH));
-            //generate full path
-            var full_path = path.join(generateUserPath(username), download_path);
-            path.normalize(full_path);
-
-            if(fs.existsSync(full_path)) {
-                if (fs.statSync(full_path).isFile()) {
-
-                    zip.addFile(path.basename(items[i]),full_path,function(){
+                if(items.length == 1){
+                    res.download(full_path, function (err) {
+                        if (err) {
+                            //res.end(error(err.message), errors.REQUEST_FAILED);
+                            return error(err.message);
+                        } else {
+                            return success('download successful');
+                        }
                     });
-                } else {
-
-                    zip.zipFolder(full_path,function(){
-
+                }else {
+                    zip.addFile(path.basename(items[i]), full_path, function () {
+                        if (j == items.length) {
+                            return zip.writeToResponse(res, 'attachment');
+                        }
+                        j++;
                     });
                 }
-            } else{
-                return res.end(error("Invalid path", errors.BAD_DIR_PATH));
+            } else {
+                zip.zipFolder(full_path,function(){
+                    if(j == items.length){
+                       return zip.writeToResponse(res,'attachment');
+                    }
+                    j++;
+                });
             }
+        } else{
+            return res.end(error("Invalid path", errors.BAD_DIR_PATH));
         }
-        zip.writeToResponse(res,'attachment');
     }
 });
 
