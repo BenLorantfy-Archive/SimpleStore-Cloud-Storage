@@ -15,6 +15,51 @@ app.controller('MainController', function($scope, $compile) {
         deleteSelectedItems();
     })
     
+    $("#download").click(function(){
+        downloadSelectedItems();
+    })
+    
+    function downloadSelectedItems(){
+        var items = [];
+        var names = [];
+        var types = [];
+        $(".workingItem:not(.secondary)").each(function(){
+            var el = $(this);
+            var path = el.attr("path");
+            var col = $(this).closest(".fileColumn");
+            var colIndex = col.index();
+            var folder = columnStack[colIndex];
+            var item = findItemByPath(folder,path);  
+
+            items.push(item.path);
+            names.push(item.name);
+            types.push(item.isFile ? "file" : "folder");
+        });
+        
+        $.request("POST","/download",{
+            items:items
+        },"",true).done(function(url){
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.style = "display: none";
+            
+            a.href = url;
+            
+            a.download = "download.zip";
+            
+            if(items.length == 1){
+                if(types[0] == "file"){
+                    a.download = names[0];
+                }
+            }
+            
+           
+            a.click();
+            
+//            console.log(data);
+        });
+    }
+    
     function deleteSelectedItems(){
         if(confirm("Are you sure?")){
             var paths = [];
@@ -78,24 +123,10 @@ app.controller('MainController', function($scope, $compile) {
                     textbox[0].select();
                 }},
                 deleteItem: {name: "Delete", callback: function(key, opt){ 
-//                    var el = $(this);
-//                    var path = el.attr("path");
-//                    var col = $(this).closest(".fileColumn");
-//                    var colIndex = col.index();
-//                    var folder = columnStack[colIndex];
-//                    
-//                    var item = findItemByPath(folder,path);
-//                    
-//                    // [ Remove from tree object ]
-//                    item.parent.children.splice(item.parent.children.indexOf(item),1);
-//                    
-//                    // [ remove all the elements from the DOM ]
-//                    $("tree-item[path='" + item.path.replace(/'/g,"\\'") + "']").remove();
-                    
                     deleteSelectedItems();
                 }},
                 downloadItem: {name: "Download", callback: function(key, opt){ 
-                    
+                    downloadSelectedItems();
                 }},
             }
         });
