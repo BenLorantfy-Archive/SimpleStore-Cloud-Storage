@@ -213,3 +213,10 @@ input[type="button"],button{
 .extraFieldContainer{
     display: none;
 }
+
+#logout{
+	position:absolute;
+	bottom:20px;
+	left:50%;
+	margin-left:-60px;
+}
